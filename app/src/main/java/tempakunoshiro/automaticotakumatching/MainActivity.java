@@ -7,9 +7,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.UpdateBuilder;
+
 import java.net.URI;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 import tempakunoshiro.automaticotakumatching.DatabaseContent.UserColumns;
 import tempakunoshiro.automaticotakumatching.DatabaseContent.ScreamColumns;
@@ -23,85 +34,55 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // データ追加テスト（idはユニークなのでinsert注意）
-        DatabaseContentProvider dbContProv = new DatabaseContentProvider();
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance(this);
+        try {
+            Dao userDao = dbHelper.getDao(User.class);
 
-        // レコードをwhereで指定してみた
-        if(getContentResolver().query(UserColumns.CONTENT_URI, null, UserColumns._ID +" = "+ 1089, null, null).getCount() == 0){
-            ContentValues values = new ContentValues();
-            values.put(UserColumns._ID , 1089);
-            values.put(UserColumns.NAME, "天白太郎");
-            values.put(UserColumns.ELEMENT, "大学クラスタ");
-            values.put(UserColumns.TAG, "豊橋技術科学大学推し");
-            values.put(UserColumns.TWITTER_ID, "tempakunoshiro");
-            values.put(UserColumns.COMMENT, "進捗どうですか");
-            getContentResolver().insert(UserColumns.CONTENT_URI, values);
-        }
+            // 追加テスト
+            User u1 = new User(1089, "天伯太郎", "大学クラスタ", "豊橋技術科学大学推し", "tempakunoshiro", "進捗どうですか");
+            userDao.create(u1);
+            User u2 = new User(1000, "なん", "ゲーム", "アクアプラス", "nan_nansofting", "うたわれ二人の白皇発売が楽しみ");
+            userDao.createIfNotExists(u2);
+            User u3 = new User(2000, "ごちうさ難民", "アニメ", "ご注文はうさぎですか？", "", "こころがぴょんぴょんするんじゃああああ");
+            userDao.createOrUpdate(u3);
 
-        // レコードをwhereではなくuriで指定してみた
-        if(getContentResolver().query(Uri.withAppendedPath(UserColumns.CONTENT_URI, "1000"), null, null, null, null).getCount() == 0){
-            ContentValues values = new ContentValues();
-            values.put(UserColumns._ID , 1000);
-            values.put(UserColumns.NAME, "なん");
-            values.put(UserColumns.ELEMENT, "ゲーム");
-            values.put(UserColumns.TAG, "アクアプラス");
-            values.put(UserColumns.TWITTER_ID, "nan_nansofting");
-            values.put(UserColumns.COMMENT, "うたわれ二人の白皇発売が楽しみ");
-            // insertはuriで指定してもエラーになるので注意
-            // × getContentResolver().insert(Uri.withAppendedPath(UserColumns.CONTENT_URI, "1000"), values);
-            getContentResolver().insert(UserColumns.CONTENT_URI, values);
-        }
+            // 更新テスト
+            UpdateBuilder<User, Integer> updateBuilder = userDao.updateBuilder();
+            updateBuilder.where().eq("id", 2000);
+            updateBuilder.updateColumnValue("tag", "ご注文はうさぎですか？？");
+            updateBuilder.update();
 
-        // insertした後にupdateするテスト
-        if(getContentResolver().query(UserColumns.CONTENT_URI, null, UserColumns._ID +" = "+ 2000, null, null).getCount() == 0){
-            ContentValues values = new ContentValues();
-            values.put(UserColumns._ID , 2000);
-            values.put(UserColumns.NAME, "ごちうさ難民");
-            values.put(UserColumns.ELEMENT, "アニメ");
-            values.put(UserColumns.TAG, "ご注文はうさぎですか？");
-            values.put(UserColumns.TWITTER_ID, "");
-            values.put(UserColumns.COMMENT, "こころがぴょんぴょんするんじゃああああ");
-            getContentResolver().insert(UserColumns.CONTENT_URI, values);
-        }
-
-        {
-            ContentValues values = new ContentValues();
-            values.put(UserColumns.TAG, "ご注文はうさぎですか？？");
-            getContentResolver().update(UserColumns.CONTENT_URI, values, UserColumns._ID + " = " + 2000, null);
-        }
-
-        // 全レコードを取得
-        {
-            Cursor cur = getContentResolver().query(UserColumns.CONTENT_URI, null, null, null, null);
-            while (cur.moveToNext()) {
-                Log.d(String.valueOf(cur.getLong(0)), cur.getString(1) + ", " + cur.getString(2) + ", " + cur.getString(3) + ", " + cur.getString(4) + ", " + cur.getString(5));
+            // マッピングテスト
+            List<User> users = userDao.queryForAll();
+            for(User user : users){
+                Log.d("test", user.getId()+", "+user.getName()+", "+user.getElement()+", "+user.getTag()+", "+user.getTwitterID()+", "+user.getComment());
             }
-        }
 
-        // Screamも追加テスト
-        if(getContentResolver().query(ScreamColumns.CONTENT_URI, null, ScreamColumns._ID +" = "+ 10, null, null).getCount() == 0){
-            ContentValues values = new ContentValues();
-            values.put(ScreamColumns._ID , 10);
-            values.put(ScreamColumns.USER_ID, 2000);
-            values.put(ScreamColumns.TEXT, "ごちうさ好きあつまれ！");
-            values.put(ScreamColumns.TIME, System.currentTimeMillis());
-            getContentResolver().insert(ScreamColumns.CONTENT_URI, values);
-        }
+            Map<Long, User> userMap = new HashMap<>();
+            for (User u : users) {
+                userMap.put(u.getId(), u);
+            }
 
-        // Screamの全レコードを取得 ＋ ユーザーID→ユーザー名解決（Userテーブルのユーザー名のみを取得する） ＋ 投稿時刻整形テスト
-        {
+            // Screamの追加、User名との関連付けテスト
+            Dao screamDao = dbHelper.getDao(Scream.class);
+            Scream s1 = new Scream(10, 2000, "ごちうさ好きあつまれ！", System.currentTimeMillis());
+            screamDao.createIfNotExists(s1);
+
+            List<Scream> screams = screamDao.queryForAll();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            for(Scream scream : screams){
 
-            Cursor cur = getContentResolver().query(ScreamColumns.CONTENT_URI, null, null, null, null);
-            while (cur.moveToNext()) {
-                Cursor cur2 = getContentResolver().query(UserColumns.CONTENT_URI, new String[]{ UserColumns.NAME }, UserColumns._ID +" = "+ cur.getLong(1), null, null);
-                cur2.moveToFirst();
-                Log.d(String.valueOf(cur.getLong(0)), cur2.getString(0) + ", " + cur.getString(2) + ", " + simpleDateFormat.format(new Date(cur.getLong(3))));
+                Log.d("test", scream.getId()+", "+ userMap.get(scream.getUserId()).getName() +", "+scream.getText()+", "+ simpleDateFormat.format(new Date(scream.getTime())));
             }
-        }
 
-        // 全レコードを削除
-        getContentResolver().delete(UserColumns.CONTENT_URI, null, null);
-        getContentResolver().delete(ScreamColumns.CONTENT_URI, null, null);
+            DeleteBuilder<User, Integer> userDeleteBuilder =  userDao.deleteBuilder();
+            userDeleteBuilder.delete();
+            DeleteBuilder<Scream, Integer> screamDeleteBuilder = screamDao.deleteBuilder();
+            userDeleteBuilder.delete();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         setContentView(R.layout.activity_main);
     }
