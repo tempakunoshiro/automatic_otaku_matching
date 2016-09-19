@@ -4,4 +4,7 @@
     <string name="comment_label_text">コメント</string>
     <string name="twitter_label_text">Twitter</string>
     <string name="twitter_button">Twitter</string>
+    <string name="edit_name_text">ニックネームを編集</string>
+    <string name="edit_twitter_text">Twitterのスクリーン名を編集</string>
+    <string name="edit_comment_text">コメントを編集</string>
 </resources>
