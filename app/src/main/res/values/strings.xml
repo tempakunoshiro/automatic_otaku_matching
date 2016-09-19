@@ -7,4 +7,5 @@
     <string name="edit_name_text">ニックネームを編集</string>
     <string name="edit_twitter_text">Twitterのスクリーン名を編集</string>
     <string name="edit_comment_text">コメントを編集</string>
+    <string name="add_tag_text">新しいタグを追加</string>
 </resources>

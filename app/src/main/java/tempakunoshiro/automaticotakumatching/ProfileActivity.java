@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -44,22 +45,40 @@ public class ProfileActivity extends AppCompatActivity {
     private String getComment() {
         return commentText.getText().toString();
     }
+    private void addTag(String tag) {
+        LinearLayout line = new LinearLayout(this);
+        line.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams lp =
+                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.gravity = Gravity.CENTER_VERTICAL;
+        line.setLayoutParams(lp);
+        TextView tagText = new TextView(this);
+        tagText.setTextSize(20);
+        tagText.setText("#" + tag);
+        line.addView(tagText);
+        ImageView delButton = new ImageView(this);
+        delButton.setImageResource(android.R.drawable.ic_delete);
+        delButton.setMaxHeight(20);
+        delButton.setMaxWidth(20);
+        delButton.setOnClickListener(new View.OnClickListener() {
+            private LinearLayout line;
+            public View.OnClickListener getInstance(LinearLayout line) {
+                this.line = line;
+                return this;
+            }
+            @Override
+            public void onClick(View view) {
+                tagsList.removeView(line);
+            }
+        }.getInstance(line));
+        line.addView(delButton);
+        tagsList.addView(line);
+    }
     private void setTagsList(String[] tags) {
         for(String tag : tags) {
-            TextView tagText = new TextView(this);
-            tagText.setTextSize(20);
-            tagText.setText("#" + tag);
-            tagsList.addView(tagText);
+            addTag(tag);
         }
-    }
-    private String[] getTagsList() {
-        int nTags = tagsList.getChildCount();
-        String[] tags = new String[nTags];
-        for(int i = 0; i < nTags; ++i) {
-            TextView textView = (TextView) tagsList.getChildAt(i);
-            tags[i] = textView.getText().toString().substring(1);
-        }
-        return tags;
     }
 
     @Override
@@ -82,13 +101,13 @@ public class ProfileActivity extends AppCompatActivity {
         //iconImage.setImageDrawable();
         setName("キモ=オタク");
         setTwitter("yantene");
-        String[] tags = {"アニメ", "ゲーム", "電車", "名古屋鉄道", "名鉄"};
-        setTagsList(tags);
         setComment("俺の名前はキモ=オタク。どこにでもいるただのオタクさ。" +
                    "ある日、お気に入りのウエストポーチをつけて街に出ると、" +
                    "ふと世のオタク共がリュックサックに乗り換えていることに気がついた。" +
                    "あんなにウエストポーチを愛した俺達が今更別のものに乗り換えるなんて信じられない。" +
                    "オタクとしての自覚に欠けると言わざるを得ないね。");
+        String[] tags = {"アニメ", "ゲーム", "電車", "名古屋鉄道", "名鉄"};
+        setTagsList(tags);
 
         // 自分のプロフィールなら各フィールドを編集可能に
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -127,6 +146,11 @@ public class ProfileActivity extends AppCompatActivity {
         startActivity(i);
     }
 
+    public void onAddTagButtonTapped(View view) {
+        AddTagDialog dialog = AddTagDialog.newInstance("ゲーム");
+        dialog.show(getFragmentManager(), "dialog");
+    }
+
     // XXX: I don't want to make these classes!!!
     //      But, But...!
     public static class NameChangeDialog extends DialogFragment {
@@ -142,6 +166,7 @@ public class ProfileActivity extends AppCompatActivity {
             builder.setView(content);
 
             builder.setTitle(R.string.edit_name_text);
+            editText.setSingleLine(true);
             editText.setText(getArguments().getString("value"));
 
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -175,6 +200,7 @@ public class ProfileActivity extends AppCompatActivity {
             builder.setView(content);
 
             builder.setTitle(R.string.edit_name_text);
+            editText.setSingleLine(true);
             editText.setText(getArguments().getString("value"));
 
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -208,6 +234,7 @@ public class ProfileActivity extends AppCompatActivity {
             builder.setView(content);
 
             builder.setTitle(R.string.edit_name_text);
+            editText.setSingleLine(false);
             editText.setText(getArguments().getString("value"));
 
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -222,6 +249,41 @@ public class ProfileActivity extends AppCompatActivity {
 
         public static CommentChangeDialog newInstance(String value){
             CommentChangeDialog dialog = new CommentChangeDialog();
+            Bundle args = new Bundle();
+            args.putString("value", value);
+            dialog.setArguments(args);
+            return dialog;
+        }
+    }
+
+    public static class AddTagDialog extends DialogFragment {
+        private EditText editText;
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LinearLayout content = (LinearLayout) inflater.inflate(R.layout.dialog_edit_text, null);
+            editText = (EditText) content.findViewById(R.id.editText);
+            builder.setView(content);
+
+            builder.setTitle(R.string.add_tag_text);
+            editText.setSingleLine(true);
+            editText.setText(getArguments().getString("value"));
+
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    ProfileActivity activity = (ProfileActivity) getActivity();
+                    activity.addTag(editText.getText().toString());
+                }
+            });
+            return builder.create();
+        }
+
+        public static AddTagDialog newInstance(String value){
+            AddTagDialog dialog = new AddTagDialog();
             Bundle args = new Bundle();
             args.putString("value", value);
             dialog.setArguments(args);

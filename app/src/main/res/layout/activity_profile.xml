@@ -98,6 +98,30 @@
                     android:id="@+id/tagsList"
                     android:paddingLeft="15dp"></LinearLayout>
 
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="15dp"
+                    android:onClick="onAddTagButtonTapped">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/add_tag_text"
+                        android:id="@+id/textView"
+                        android:textSize="20dp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/imageView"
+                        android:maxHeight="20dp"
+                        android:maxWidth="20dp"
+                        android:src="@android:drawable/ic_input_add" />
+                </LinearLayout>
+
             </LinearLayout>
         </ScrollView>
 
