@@ -2,7 +2,6 @@ package tempakunoshiro.automaticotakumatching;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
@@ -10,9 +9,6 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
-
-import tempakunoshiro.automaticotakumatching.DatabaseContent.UserColumns;
-import tempakunoshiro.automaticotakumatching.DatabaseContent.ScreamColumns;
 
 /**
  * Created by Nan on 2016/09/15.
@@ -38,8 +34,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource) {
         try {
-            TableUtils.createTable(connectionSource, User.class);
-            TableUtils.createTable(connectionSource, Scream.class);
+            TableUtils.createTable(connectionSource, MyUser.class);
+            TableUtils.createTable(connectionSource, MyScream.class);
+            TableUtils.createTable(connectionSource, MyTag.class);
+            TableUtils.createTable(connectionSource, MyTagger.class);
+            TableUtils.createTable(connectionSource, MyIcon.class);
         } catch (SQLException e) {
             Log.e(DatabaseHelper.class.getName(), "データベースの作成エラー", e);
         }
@@ -48,11 +47,31 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource, int i, int i2) {
         try {
-            TableUtils.dropTable(connectionSource, User.class, true);
-            TableUtils.dropTable(connectionSource, Scream.class, true);
+            TableUtils.dropTable(connectionSource, MyUser.class, true);
+            TableUtils.dropTable(connectionSource, MyScream.class, true);
+            TableUtils.dropTable(connectionSource, MyTag.class, true);
+            TableUtils.dropTable(connectionSource, MyTagger.class, true);
+            TableUtils.dropTable(connectionSource, MyIcon.class, true);
         } catch (SQLException e) {
             Log.e(DatabaseHelper.class.getName(), "データベースの更新エラー", e);
         }
         onCreate(sqLiteDatabase, connectionSource);
+    }
+
+    public void init() {
+        try {
+            TableUtils.dropTable(getConnectionSource(), MyUser.class, true);
+            TableUtils.dropTable(getConnectionSource(), MyScream.class, true);
+            TableUtils.dropTable(getConnectionSource(), MyTag.class, true);
+            TableUtils.dropTable(getConnectionSource(), MyTagger.class, true);
+            TableUtils.dropTable(getConnectionSource(), MyIcon.class, true);
+            TableUtils.createTable(getConnectionSource(), MyUser.class);
+            TableUtils.createTable(getConnectionSource(), MyScream.class);
+            TableUtils.createTable(getConnectionSource(), MyTag.class);
+            TableUtils.createTable(getConnectionSource(), MyTagger.class);
+            TableUtils.createTable(getConnectionSource(), MyIcon.class);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
