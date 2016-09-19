@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">AutomaticOtakuMatching</string>
+    <string name="tags_label_text">タグ</string>
+    <string name="comment_label_text">コメント</string>
+    <string name="twitter_label_text">Twitter</string>
+    <string name="twitter_button">Twitter</string>
 </resources>
