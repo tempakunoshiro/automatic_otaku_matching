@@ -104,7 +104,9 @@
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:paddingLeft="15dp"
-                    android:onClick="onAddTagButtonTapped">
+                    android:onClick="onAddTagButtonTapped"
+                    android:visibility="invisible"
+                    android:id="@+id/addTagButton">
 
                     <TextView
                         android:layout_width="wrap_content"

@@ -20,11 +20,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ProfileActivity extends AppCompatActivity {
+    private boolean editableFlg = false;
     private ImageView iconImage;
     private TextView nameText;
     private TextView twitterText;
     private LinearLayout tagsList;
     private TextView commentText;
+    private LinearLayout addTagButton;
 
     // アクセサ
     private void setName(String name) {
@@ -53,26 +55,35 @@ public class ProfileActivity extends AppCompatActivity {
                         LinearLayout.LayoutParams.WRAP_CONTENT);
         lp.gravity = Gravity.CENTER_VERTICAL;
         line.setLayoutParams(lp);
+
+        // タグを作成
         TextView tagText = new TextView(this);
         tagText.setTextSize(20);
         tagText.setText("#" + tag);
         line.addView(tagText);
-        ImageView delButton = new ImageView(this);
-        delButton.setImageResource(android.R.drawable.ic_delete);
-        delButton.setMaxHeight(20);
-        delButton.setMaxWidth(20);
-        delButton.setOnClickListener(new View.OnClickListener() {
-            private LinearLayout line;
-            public View.OnClickListener getInstance(LinearLayout line) {
-                this.line = line;
-                return this;
-            }
-            @Override
-            public void onClick(View view) {
-                tagsList.removeView(line);
-            }
-        }.getInstance(line));
-        line.addView(delButton);
+
+        // 削除ボタンを作成
+        if (editableFlg) {
+            ImageView delButton = new ImageView(this);
+            delButton.setImageResource(android.R.drawable.ic_delete);
+            delButton.setMaxHeight(20);
+            delButton.setMaxWidth(20);
+            delButton.setOnClickListener(new View.OnClickListener() {
+                private LinearLayout line;
+
+                public View.OnClickListener getInstance(LinearLayout line) {
+                    this.line = line;
+                    return this;
+                }
+
+                @Override
+                public void onClick(View view) {
+                    tagsList.removeView(line);
+                }
+            }.getInstance(line));
+            line.addView(delButton);
+        }
+
         tagsList.addView(line);
     }
     private void setTagsList(String[] tags) {
@@ -86,16 +97,22 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        // 表示するプロフィールのオタクIDを取得
+        Intent intent = getIntent();
+        long id = intent.getLongExtra("ID", 0);
+
+        // 自分のプロフィールであれば編集可能フラグを立てる
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        long myId = pref.getLong("MY_ID", 0);
+        editableFlg = (id == myId);
+
         // 各Viewの取り出し
         iconImage = (ImageView) findViewById(R.id.iconImage);
         nameText = (TextView) findViewById(R.id.nameText);
         twitterText = (TextView) findViewById(R.id.twitterText);
         tagsList = (LinearLayout) findViewById(R.id.tagsList);
         commentText = (TextView) findViewById(R.id.commentText);
-
-        // 表示するプロフィールのオタクIDを取得
-        Intent intent = getIntent();
-        long id = intent.getLongExtra("ID", 0);
+        addTagButton = (LinearLayout) findViewById(R.id.addTagButton);
 
         // データベースからデータを取得し各Viewにセット
         //iconImage.setImageDrawable();
@@ -110,9 +127,7 @@ public class ProfileActivity extends AppCompatActivity {
         setTagsList(tags);
 
         // 自分のプロフィールなら各フィールドを編集可能に
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        long myId = pref.getLong("MY_ID", 0);
-        if (id == myId) {
+        if (editableFlg) {
             nameText.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -137,6 +152,15 @@ public class ProfileActivity extends AppCompatActivity {
                     dialog.show(getFragmentManager(), "dialog");
                 }
             });
+            addTagButton.setVisibility(View.VISIBLE);
+            addTagButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String newTagText = getString(R.string.new_tag_text);
+                    AddTagDialog dialog = AddTagDialog.newInstance(newTagText);
+                    dialog.show(getFragmentManager(), "dialog");
+                }
+            });
         }
     }
 
@@ -144,11 +168,6 @@ public class ProfileActivity extends AppCompatActivity {
         Uri uri = Uri.parse("https://twitter.com/" + getTwitter());
         Intent i = new Intent(Intent.ACTION_VIEW, uri);
         startActivity(i);
-    }
-
-    public void onAddTagButtonTapped(View view) {
-        AddTagDialog dialog = AddTagDialog.newInstance("ゲーム");
-        dialog.show(getFragmentManager(), "dialog");
     }
 
     // XXX: I don't want to make these classes!!!
@@ -199,7 +218,7 @@ public class ProfileActivity extends AppCompatActivity {
             editText = (EditText) content.findViewById(R.id.editText);
             builder.setView(content);
 
-            builder.setTitle(R.string.edit_name_text);
+            builder.setTitle(R.string.edit_twitter_text);
             editText.setSingleLine(true);
             editText.setText(getArguments().getString("value"));
 
@@ -233,7 +252,7 @@ public class ProfileActivity extends AppCompatActivity {
             editText = (EditText) content.findViewById(R.id.editText);
             builder.setView(content);
 
-            builder.setTitle(R.string.edit_name_text);
+            builder.setTitle(R.string.edit_comment_text);
             editText.setSingleLine(false);
             editText.setText(getArguments().getString("value"));
 
@@ -255,7 +274,6 @@ public class ProfileActivity extends AppCompatActivity {
             return dialog;
         }
     }
-
     public static class AddTagDialog extends DialogFragment {
         private EditText editText;
 
