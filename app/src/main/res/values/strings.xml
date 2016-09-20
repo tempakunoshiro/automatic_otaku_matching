@@ -8,4 +8,5 @@
     <string name="edit_comment_text">コメントを編集</string>
     <string name="add_tag_text">新しいタグを追加</string>
     <string name="new_tag_text">新しいタグ</string>
+    <string name="last_received">最終受信時刻</string>
 </resources>
