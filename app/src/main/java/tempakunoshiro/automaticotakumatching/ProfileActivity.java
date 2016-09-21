@@ -51,7 +51,7 @@ public class ProfileActivity extends AppCompatActivity {
         return commentText.getText().toString();
     }
     private void addTag(String tag) {
-        final LinearLayout line = new LinearLayout(this);
+        LinearLayout line = new LinearLayout(this);
         line.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout.LayoutParams lp =
                 new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -72,11 +72,16 @@ public class ProfileActivity extends AppCompatActivity {
             delButton.setMaxHeight(20);
             delButton.setMaxWidth(20);
             delButton.setOnClickListener(new View.OnClickListener() {
+                private LinearLayout line;
+                public View.OnClickListener getInstance(LinearLayout line) {
+                    this.line = line;
+                    return this;
+                }
                 @Override
                 public void onClick(View view) {
                     tagsList.removeView(line);
                 }
-            });
+            }.getInstance(line));
             line.addView(delButton);
         }
 
@@ -170,11 +175,11 @@ public class ProfileActivity extends AppCompatActivity {
         super.onPause();
 
         // TODO: アイコン変更対応
-        if(profile.getName() != getName() ||
+        if(profile.getName().equals(getName()) ||
            //profile.getIcon() != getIcon() ||
-           profile.getTwitterId() != getTwitter() ||
-           profile.getComment() != getComment() ||
-           profile.getTagSet() != getTagSet()) {
+           profile.getTwitterId().equals(getTwitter()) ||
+           profile.getComment().equals(getComment()) ||
+           !profile.getTagSet().equals(getTagSet())) {
             Switcher.sendData(this, new MyUser(
                 profile.getId(),
                 getName(),
