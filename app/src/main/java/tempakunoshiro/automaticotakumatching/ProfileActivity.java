@@ -19,9 +19,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 public class ProfileActivity extends AppCompatActivity {
+    private MyUser profile;
     private boolean editableFlg = false;
     private ImageView iconImage;
     private TextView nameText;
@@ -81,10 +82,19 @@ public class ProfileActivity extends AppCompatActivity {
 
         tagsList.addView(line);
     }
-    private void setTagsList(String[] tags) {
+    private void setTagSet(LinkedHashSet<String> tags) {
         for(String tag : tags) {
             addTag(tag);
         }
+    }
+    private LinkedHashSet<String> getTagSet() {
+        LinkedHashSet<String> tagSet = new LinkedHashSet<>();
+        for(int i = 0; i < tagsList.getChildCount(); ++i){
+            LinearLayout line = (LinearLayout) tagsList.getChildAt(i);
+            TextView tagText = (TextView) line.getChildAt(0);
+            tagSet.add(tagText.getText().toString().substring(1));
+        }
+        return tagSet;
     }
 
     @Override
@@ -98,7 +108,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         // 自分のプロフィールであれば編集可能フラグを立てる
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        long myId = pref.getLong("MY_ID", 0);
+        long myId = pref.getLong("USER_ID", 0);
         editableFlg = (id == myId);
 
         // 各Viewの取り出し
@@ -110,16 +120,12 @@ public class ProfileActivity extends AppCompatActivity {
         addTagButton = (LinearLayout) findViewById(R.id.addTagButton);
 
         // データベースからデータを取得し各Viewにセット
-        MyUser myUser = MyUser.getMyUserById(this, id);
+        profile = MyUser.getMyUserById(this, id);
         //iconImage.setImageDrawable();
-        setName(myUser.getName());
-        setTwitter(myUser.getTwitterId());
-        setComment(myUser.getComment());
-
-        Set<String> tagSet = myUser.getTagSet();
-        String[] tagArray = new String[tagSet.size()];
-        tagSet.toArray(tagArray);
-        setTagsList(tagArray);
+        setName(profile.getName());
+        setTwitter(profile.getTwitterId());
+        setComment(profile.getComment());
+        setTagSet(profile.getTagSet());
 
         // 自分のプロフィールなら各フィールドを編集可能に
         if (editableFlg) {
@@ -157,6 +163,28 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // TODO: アイコン変更対応
+        if(profile.getName() != getName() ||
+           //profile.getIcon() != getIcon() ||
+           profile.getTwitterId() != getTwitter() ||
+           profile.getComment() != getComment() ||
+           profile.getTagSet() != getTagSet()) {
+            Switcher.sendData(this, new MyUser(
+                profile.getId(),
+                getName(),
+                null,
+                getTwitter(),
+                getComment(),
+                getTagSet(),
+                System.currentTimeMillis()
+            ));
+         }
     }
 
     public void onTwitterButtonTapped(View view) {
@@ -280,7 +308,6 @@ public class ProfileActivity extends AppCompatActivity {
             LinearLayout content = (LinearLayout) inflater.inflate(R.layout.dialog_edit_text, null);
             editText = (EditText) content.findViewById(R.id.editText);
             builder.setView(content);
-
             builder.setTitle(R.string.add_tag_text);
             editText.setSingleLine(true);
             editText.setText(getArguments().getString("value"));
