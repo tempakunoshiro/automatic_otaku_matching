@@ -36,12 +36,14 @@ public class Switcher extends IntentService {
 
         DatabaseHelper dbHelper = DatabaseHelper.getInstance(this);
         try {
+            // user追加処理
             Dao userDao = dbHelper.getDao(MyUser.class);
             if(user != null){
                 userDao.createOrUpdate(user);
             }
             List<MyUser> allUsers = userDao.queryForAll();
 
+            // scream追加処理
             Dao screamDao = dbHelper.getDao(MyScream.class);
             if(scream != null) {
                 screamDao.createOrUpdate(scream);
@@ -49,9 +51,9 @@ public class Switcher extends IntentService {
             List<MyScream> allScreams = screamDao.queryForAll();
 
             if(user != null) {
+                // tag追加処理
                 Dao tagDao = dbHelper.getDao(MyTag.class);
                 Dao taggerDao = dbHelper.getDao(MyTagger.class);
-
                 Set<String> tags = user.getTagSet();
                 for (String s : tags) {
                     QueryBuilder<MyTag, Integer> queryBuilder = tagDao.queryBuilder();
@@ -72,7 +74,7 @@ public class Switcher extends IntentService {
                     }
                 }
 
-                // icon処理重いので非同期注意
+                // icon追加処理、やや処理重いので非同期注意（SQLアクセスは先にやっとけ）
                 Bitmap icon = user.getIcon();
                 Dao iconDao = dbHelper.getDao(MyIcon.class);
                 {
@@ -85,10 +87,10 @@ public class Switcher extends IntentService {
                 }
             }
 
+            // データ送信部分
             SharedPreferences pref = getSharedPreferences("user_data", MODE_PRIVATE);
-
             long id = user == null ? scream.getUserId() : user.getId() ;
-            // 自分
+            // 自分のデータが来た→通信部に送信
             if(id == pref.getLong("user_id", -1L)){
                 Intent dataIntent = new Intent(ACTION_DATA_RECEIVED);
                 if(user != null){
@@ -99,8 +101,9 @@ public class Switcher extends IntentService {
                 }
                 sendBroadcast(dataIntent);
             }
-            // 他の人
+            // 他の人のデータが来た→各アクティビティに送信＆マッチング
             else {
+                // ユーザーデータ送信
                 if(user != null) {
                     Intent userIntent = new Intent(ACTION_USER_RECEIVED);
                     List<MyUser> users = new ArrayList<>();
@@ -112,6 +115,7 @@ public class Switcher extends IntentService {
                     sendBroadcast(userIntent);
                 }
 
+                // スクリームデータ送信
                 if(scream != null) {
                     Intent screamIntent = new Intent(ACTION_SCREAM_RECEIVED);
                     List<MyScream> screams = new ArrayList<>();
@@ -120,6 +124,7 @@ public class Switcher extends IntentService {
                     sendBroadcast(screamIntent);
                 }
 
+                // マッチング部分に処理投げる
                 if(user != null) {
                     Intent matchingIntent = new Intent(this, MatchingService.class);
                     matchingIntent.putExtra("USER", (Parcelable) user);
