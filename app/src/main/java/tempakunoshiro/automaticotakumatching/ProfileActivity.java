@@ -175,21 +175,23 @@ public class ProfileActivity extends AppCompatActivity {
         super.onPause();
 
         // TODO: アイコン変更対応
-        if(profile.getName().equals(getName()) ||
-           //profile.getIcon() != getIcon() ||
-           profile.getTwitterId().equals(getTwitter()) ||
-           profile.getComment().equals(getComment()) ||
+        if(!profile.getName().equals(getName()) ||
+           !profile.getTwitterId().equals(getTwitter()) ||
+           !profile.getComment().equals(getComment()) ||
            !profile.getTagSet().equals(getTagSet())) {
-            Switcher.sendData(this, new MyUser(
-                profile.getId(),
-                getName(),
-                null,
-                getTwitter(),
-                getComment(),
-                getTagSet(),
-                System.currentTimeMillis()
-            ));
+            MyUser user = new MyUser(
+                    profile.getId(),
+                    getName(),
+                    null,
+                    getTwitter(),
+                    getComment(),
+                    getTagSet(),
+                    System.currentTimeMillis()
+            );
+            Switcher.sendData(this, user);
+            System.out.println("new data: " + user.toString());
          }
+        System.out.println("database: " + MyUser.getMyUserById(this, profile.getId()).toString());
     }
 
     public void onTwitterButtonTapped(View view) {
