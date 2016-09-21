@@ -19,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.Set;
+
 public class ProfileActivity extends AppCompatActivity {
     private boolean editableFlg = false;
     private ImageView iconImage;
@@ -48,7 +50,7 @@ public class ProfileActivity extends AppCompatActivity {
         return commentText.getText().toString();
     }
     private void addTag(String tag) {
-        LinearLayout line = new LinearLayout(this);
+        final LinearLayout line = new LinearLayout(this);
         line.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout.LayoutParams lp =
                 new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -69,18 +71,11 @@ public class ProfileActivity extends AppCompatActivity {
             delButton.setMaxHeight(20);
             delButton.setMaxWidth(20);
             delButton.setOnClickListener(new View.OnClickListener() {
-                private LinearLayout line;
-
-                public View.OnClickListener getInstance(LinearLayout line) {
-                    this.line = line;
-                    return this;
-                }
-
                 @Override
                 public void onClick(View view) {
                     tagsList.removeView(line);
                 }
-            }.getInstance(line));
+            });
             line.addView(delButton);
         }
 
@@ -115,16 +110,16 @@ public class ProfileActivity extends AppCompatActivity {
         addTagButton = (LinearLayout) findViewById(R.id.addTagButton);
 
         // データベースからデータを取得し各Viewにセット
+        MyUser myUser = MyUser.getMyUserById(this, id);
         //iconImage.setImageDrawable();
-        setName("キモ=オタク");
-        setTwitter("yantene");
-        setComment("俺の名前はキモ=オタク。どこにでもいるただのオタクさ。" +
-                   "ある日、お気に入りのウエストポーチをつけて街に出ると、" +
-                   "ふと世のオタク共がリュックサックに乗り換えていることに気がついた。" +
-                   "あんなにウエストポーチを愛した俺達が今更別のものに乗り換えるなんて信じられない。" +
-                   "オタクとしての自覚に欠けると言わざるを得ないね。");
-        String[] tags = {"アニメ", "ゲーム", "電車", "名古屋鉄道", "名鉄"};
-        setTagsList(tags);
+        setName(myUser.getName());
+        setTwitter(myUser.getTwitterId());
+        setComment(myUser.getComment());
+
+        Set<String> tagSet = myUser.getTagSet();
+        String[] tagArray = new String[tagSet.size()];
+        tagSet.toArray(tagArray);
+        setTagsList(tagArray);
 
         // 自分のプロフィールなら各フィールドを編集可能に
         if (editableFlg) {
