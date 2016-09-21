@@ -8,4 +8,5 @@
     <string name="edit_comment_text">コメントを編集</string>
     <string name="add_tag_text">新しいタグを追加</string>
     <string name="new_tag_text">新しいタグ</string>
+    <string name="send_scream_text">叫びを送信</string>
 </resources>
