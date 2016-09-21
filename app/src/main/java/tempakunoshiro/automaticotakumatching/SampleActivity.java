@@ -6,6 +6,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,11 +23,13 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 // とりあえずデータベーステスト。出力はログで確認してね（UI書くのが面倒くさかった
-public class MainActivity extends AppCompatActivity {
+public class SampleActivity extends AppCompatActivity {
     MainReceiver mainReceiver;
     DatabaseHelper dbHelper = DatabaseHelper.getInstance(this);
 
@@ -49,25 +55,17 @@ public class MainActivity extends AppCompatActivity {
         try {
             Dao userDao = dbHelper.getDao(MyUser.class);
 
-            // 追加テスト
-            MyUser u1 = new MyUser(1089, "天伯太郎", 0L, "tempakunoshiro", "進捗どうですか");
-            userDao.create(u1);
-            MyUser u2 = new MyUser(pref.getLong("user_id", -1L), "なん", 0L, "nan_nansofting", "うたわれ二人の白皇発売が楽しみ");
-            userDao.createIfNotExists(u2);
-
-            // マッピングテスト
-            List<MyUser> users = userDao.queryForAll();
-            for(MyUser user : users){
-                Log.d("test", user.getId()+", "+user.getName()+", "+user.getTwitterId()+", "+user.getComment());
-            }
-
-            System.out.println(MyUser.getInstanceFromId(this, 1089).getName());
-
             // サービス開始テスト
-            MyUser u3 = new MyUser(5753, "ごちうさ難民", 0L, "", "こころがぴょんぴょんするんじゃああああ");
+            Bitmap b1 = BitmapFactory.decodeResource(getResources(), R.drawable.kazusa);
+            MyUser u1 = new MyUser(pref.getLong("user_id", -1L), "なん", b1, "nan_nansofting", "うたわれ二人の白皇発売が楽しみ", new HashSet<String>(Arrays.asList("アニメ", "ゲーム", "アクアプラス")), System.currentTimeMillis());
+            Switcher.sendData(this ,u1);
+
+            MyUser u2 = new MyUser(1089, "天伯太郎", null, "tempakunoshiro", "進捗どうですか", new HashSet<String>(Arrays.asList("大学", "豊橋技術科学大学")), System.currentTimeMillis());
+            Switcher.sendData(this ,u2);
+            MyUser u3 = new MyUser(5753, "ごちうさ難民", null, "", "こころがぴょんぴょんするんじゃああああ", new HashSet<String>(Arrays.asList("アニメ", "ご注文はうさぎですか？", "ご注文はうさぎですか？？")), System.currentTimeMillis());
             MyScream s3 = new MyScream(5753, "ごちうさ好きあつまれ！", System.currentTimeMillis());
-            List<MyTag> list = Arrays.asList(new MyTag("アニメ"), new MyTag("ご注文はうさぎですか？"), new MyTag("ご注文はうさぎですか？？"));
-            Switcher.sendData(this, u3, s3, list, null);
+            Switcher.sendData(this, u3, s3);
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -100,9 +98,10 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if(action.equals(Switcher.ACTION_USER_RECEIVED)){
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                 List<MyUser> users = intent.getParcelableArrayListExtra("USER");
                 for(MyUser user : users){
-                    Log.d("test2", user.getId()+", "+user.getName()+", "+user.getTwitterId()+", "+user.getComment());
+                    Log.d("testUser", user.getId()+", "+user.getName()+", "+user.getIcon()+", "+user.getTwitterId()+", "+user.getComment()+", "+String.valueOf(user.getTagSet())+", "+simpleDateFormat.format(new Date(user.getModifiedTime())));
                 }
 
                 Map<Long, MyUser> userMap = new HashMap<>();
@@ -113,10 +112,10 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Dao screamDao = dbHelper.getDao(MyScream.class);
                     List<MyScream> screams = screamDao.queryForAll();
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                     for (MyScream scream : screams) {
-                        Log.d("test", scream.getId()+", "+ userMap.get(scream.getUserId()).getName() + ", " + scream.getText()+", "+ simpleDateFormat.format(new Date(scream.getTime())));
-                        Log.d("test", MyTagger.getTagListFromId(context, scream.getUserId()).toString());
+                        MyUser myUser = userMap.get(scream.getUserId());
+                        String name = myUser == null ?  "" : myUser.getName();
+                        Log.d("testScream", scream.getId()+", "+ name + ", " + scream.getText()+", "+ simpleDateFormat.format(new Date(scream.getTime())));
                     }
                 } catch (SQLException e) {
                     e.printStackTrace();

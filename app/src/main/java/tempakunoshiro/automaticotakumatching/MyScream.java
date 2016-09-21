@@ -10,6 +10,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
  * Created by Nan on 2016/09/17.
  */
 @DatabaseTable(tableName = "scream")
-public class MyScream implements Parcelable {
+public class MyScream implements Parcelable, Serializable {
     @DatabaseField(generatedId = true)
     private long id;
     @DatabaseField(canBeNull = false)
@@ -46,8 +47,8 @@ public class MyScream implements Parcelable {
     }
 
     @Nullable
-    public static MyScream getInstanceFromId(Context context, long userId) {
-        DatabaseHelper dbHelper = DatabaseHelper.getInstance(context.getApplicationContext());
+    public static MyScream getMyScreamById(Context context, long userId) {
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance(context);
         MyScream scream = null;
         try {
             Dao screamDao =  dbHelper.getDao(MyScream.class);
@@ -101,5 +102,15 @@ public class MyScream implements Parcelable {
 
     public long getTime() {
         return time;
+    }
+
+    @Override
+    public String toString() {
+        return "MyScream{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", text='" + text + '\'' +
+                ", time=" + time +
+                '}';
     }
 }

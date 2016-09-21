@@ -29,38 +29,14 @@ public class MyTagger implements Parcelable {
     private MyTagger(){}
 
     protected MyTagger(Parcel in) {
-        id = in.readLong();
-        tagId = in.readLong();
-        userId = in.readLong();
+        this.id = in.readLong();
+        this.tagId = in.readLong();
+        this.userId = in.readLong();
     }
 
     public MyTagger(long tagId, long userId) {
         this.tagId = tagId;
         this.userId = userId;
-    }
-
-    @Nullable
-    public static List<String> getTagListFromId(Context context, long userId) {
-        DatabaseHelper dbHelper = DatabaseHelper.getInstance(context.getApplicationContext());
-        List<String> tagList = new ArrayList<>();
-        try {
-            Dao taggerDao =  dbHelper.getDao(MyTagger.class);
-            QueryBuilder<MyTagger, Integer> queryBuilder = taggerDao.queryBuilder();
-            queryBuilder.where().eq("userId", userId);
-            List<MyTagger> taggers = queryBuilder.query();
-            for(MyTagger tgg : taggers){
-                Dao tagDao =  dbHelper.getDao(MyTag.class);
-                QueryBuilder<MyTag, Integer> queryBuilder2 = tagDao.queryBuilder();
-                queryBuilder2.where().eq("id", tgg.getTagId());
-                List<MyTag> tags = queryBuilder2.query();
-                for(MyTag t : tags){
-                    tagList.add(t.getTag());
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return tagList;
     }
 
     public static final Creator<MyTagger> CREATOR = new Creator<MyTagger>() {

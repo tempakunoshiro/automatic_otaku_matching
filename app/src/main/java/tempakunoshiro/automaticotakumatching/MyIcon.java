@@ -23,7 +23,7 @@ import java.util.List;
  */
 @DatabaseTable(tableName = "icon")
 public class MyIcon implements Parcelable {
-    @DatabaseField(generatedId = true)
+    @DatabaseField(id = true)
     private long id;
     @DatabaseField(dataType = DataType.BYTE_ARRAY)
     byte[] iconBytes;
@@ -38,25 +38,16 @@ public class MyIcon implements Parcelable {
         this.iconBytes = iconBytes;
     }
 
-    public MyIcon(long userId, byte[] iconBytes){
-        if(userId <= 0){
-            throw new IllegalArgumentException("idは1以上にしてください");
-        }
-        this.iconBytes = iconBytes;
-    }
-
     public MyIcon(long userId, Bitmap bmp){
-        if(userId <= 0){
-            throw new IllegalArgumentException("idは1以上にしてください");
-        }
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, bos);
-        this.iconBytes = bos.toByteArray();
+        this.id = userId;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        this.iconBytes = baos.toByteArray();
     }
 
     @Nullable
-    public static MyIcon getInstanceFromId(Context context, long userId) {
-        DatabaseHelper dbHelper = DatabaseHelper.getInstance(context.getApplicationContext());
+    public static Bitmap getIconById(Context context, long userId) {
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance(context);
         MyIcon icon = null;
         try {
             Dao iconDao =  dbHelper.getDao(MyIcon.class);
@@ -69,8 +60,27 @@ public class MyIcon implements Parcelable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return icon;
+        return icon==null ? null : icon.getIcon();
     }
+
+    @Nullable
+    public static byte[] getIconBytesById(Context context, long userId) {
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance(context);
+        MyIcon icon = null;
+        try {
+            Dao iconDao =  dbHelper.getDao(MyIcon.class);
+            QueryBuilder<MyIcon, Integer> queryBuilder = iconDao.queryBuilder();
+            queryBuilder.where().eq("id", userId);
+            List<MyIcon> icons = queryBuilder.query();
+            if(icons.size() != 0){
+                icon = icons.get(0);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return icon==null ? null : icon.getIconBytes();
+    }
+
 
     public static final Creator<MyIcon> CREATOR = new Creator<MyIcon>() {
         @Override
@@ -105,7 +115,6 @@ public class MyIcon implements Parcelable {
     }
 
     public Bitmap getIcon() {
-        ByteArrayInputStream baos = new ByteArrayInputStream(iconBytes);
         Bitmap bmp = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.length);
         return bmp;
     }
