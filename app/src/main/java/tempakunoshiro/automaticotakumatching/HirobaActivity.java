@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 
 public class HirobaActivity extends AppCompatActivity {
@@ -56,14 +57,14 @@ public class HirobaActivity extends AppCompatActivity {
         //画面サイズ取得
         dis = getWindowManager().getDefaultDisplay();
         for(Object o: userList){
-            setUser((User)o);
+            setUser((MyUser)o);
         }
         //表示
         setContentView(lay);
     }
 
 
-    private void setUser(User u){
+    private void setUser(MyUser u){
 
         //ユーザ画面表示
         ImageView img;
@@ -130,9 +131,6 @@ public class HirobaActivity extends AppCompatActivity {
 
         lay.addView(name, tlp);
         lay.addView(img, ilp);
-
-
-
     }
 
     BroadcastReceiver bReceiver = new BroadcastReceiver() {
@@ -164,7 +162,11 @@ public class HirobaActivity extends AppCompatActivity {
     String namae = "name";
     private void addList(){
         namae += "e";
-        userList.add(new User(n, namae, "taro", "jiro", "k1", "fuck"));
+        HashSet<String> tags = new HashSet<>();
+        tags.add("new_tag1");
+        tags.add("new_tag2");
+        tags.add("new_tag3");
+        userList.add(new MyUser(n, namae, null, "masason", "前進している", tags, 0));
         n++;
    }
 }
