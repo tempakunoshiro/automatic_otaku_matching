@@ -91,7 +91,7 @@ public class Switcher extends IntentService {
             SharedPreferences pref = getSharedPreferences("user_data", MODE_PRIVATE);
             long id = user == null ? scream.getUserId() : user.getId() ;
             // 自分のデータが来た→通信部に送信
-            if(id == pref.getLong("user_id", -1L)){
+            if(id == pref.getLong("USER_ID", -1L)){
                 Intent dataIntent = new Intent(ACTION_DATA_RECEIVED);
                 if(user != null){
                     dataIntent.putExtra("USER", (Parcelable) new MyUser(user, MyIcon.getIconBytesById(this, id), MyTag.getTagSetById(this, id)));

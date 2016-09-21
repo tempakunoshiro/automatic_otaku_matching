@@ -98,7 +98,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         // 自分のプロフィールであれば編集可能フラグを立てる
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        long myId = pref.getLong("MY_ID", 0);
+        long myId = pref.getLong("USER_ID", 0);
         editableFlg = (id == myId);
 
         // 各Viewの取り出し

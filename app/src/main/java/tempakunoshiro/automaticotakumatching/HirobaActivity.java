@@ -8,9 +8,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Bundle;
 
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
@@ -23,11 +26,13 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class HirobaActivity extends AppCompatActivity {
 
@@ -43,10 +48,16 @@ public class HirobaActivity extends AppCompatActivity {
     final int rows = 8;
     final int cols = 12;
     Long[][] idTable = new Long[rows][cols];
+    Long myId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = pref.edit();
+
+        myId = pref.getLong("USER_ID", 0);
+
         for(int i = 0; i < rows; i++){
             for(int j = 0; j < cols; j++){
                 idTable[i][j] = new Long(0);
@@ -64,29 +75,41 @@ public class HirobaActivity extends AppCompatActivity {
         iFilter.addAction(Switcher.ACTION_USER_RECEIVED);
         registerReceiver(receiver, iFilter);
 
-        //debug code
-        //for(int i = 0; i <= 10; i++)
-            //debugSendData();
-            //addList();
-        userList = (ArrayList)MyUser.getAllMyUser(this);
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        if(bundle != null){
-            long id = bundle.getLong("ID");
-            System.out.println(id);
+
+
+        if(myId == 0){
+
+            Long udid = new BigInteger(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID), 16).longValue();
+            long id = (((long) Math.ceil(Math.random()*Integer.MAX_VALUE)) << 32) + udid.hashCode();
+            editor.putLong("USER_ID", id);
+            editor.commit();
+
+            myId = new Long(id);
+
+            Set<String> tags = new HashSet<String>();
+
+            String name = (String)getString(R.string.default_name);
+
+            Switcher.sendData(this, new MyUser(id, name, null, "twitter", "コメントを入力してください.", tags, 0));
+
+
+            Intent intent = new Intent(HirobaActivity.this, ProfileActivity.class);
+            Bundle bundle = new Bundle();
+            System.out.println("myId:" + id);
+            bundle.putLong("ID", id);
+            intent.putExtras(bundle);
+
+            userList = (ArrayList)MyUser.getAllMyUser(this);
+
+            startActivity(intent);
         }
 
         Update();
     }
 
-    //debug本来はプリファレンス
-    long myId = 1;
 
     public void Update(){
         lay = (RelativeLayout)findViewById(R.id.hiroba);
-        //View初期化
-        //System.out.println("laywidth:" + lay.getWidth());
-        //System.out.println("laheight:" + lay.getHeight());
         imgSize.set(lay.getWidth() / rows, lay.getHeight() / cols);
         lay.removeAllViews();
 
@@ -162,7 +185,6 @@ public class HirobaActivity extends AppCompatActivity {
                             posFlag = posFlag && false;
                         }
                     }
-                    //System.out.println("loop" + x + ", " + y);
                     if (posFlag) break;
                 }
             }
@@ -181,13 +203,9 @@ public class HirobaActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                //addList();
-                //Update();
-                //debug 本来はProfileへ移動
                 Intent intent = new Intent(HirobaActivity.this, ProfileActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putLong("ID", id);
-                System.out.println("userid:" + id);
                 intent.putExtras(bundle);
                 startActivity(intent);
             }
@@ -222,17 +240,7 @@ public class HirobaActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //SendSwicher
-                    namae += "a";
-                    HashSet<String> tags = new HashSet<>();
-                    tags.add("new_tag1");
-                    tags.add("new_tag2");
-                    tags.add("new_tag3");
-                    MyUser user = new MyUser(n, namae, null, "masason", "前進している", tags, 0);
-                    Switcher.sendData((HirobaActivity)getActivity(), user);
-                    n++;
 
-                    //HirobaActivity activity = (HirobaActivity) getActivity();
-                    //activity.setTwitter(editText.getText().toString());
                 }
             });
             return builder.create();
@@ -250,15 +258,10 @@ public class HirobaActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         try {
             lay = (RelativeLayout)findViewById(R.id.hiroba);
-            //ImageView tmp = (ImageView) findViewById(R.id.myImage);
-            //imgSize = new Point();
-            //imgSize.set(tmp.getWidth(), tmp.getHeight());
             actSize = new Point();
             actSize.set(lay.getWidth(), lay.getHeight());
-            //System.out.println("sizex" + lay.getWidth() + "sizey" + lay.getHeight());
             Update();
         }catch(Exception e){
-            //System.out.println("sizex" + imgSize.x + "sizey" + imgSize.y);
         }
     }
 
@@ -267,29 +270,6 @@ public class HirobaActivity extends AppCompatActivity {
 
     }
 
-    //debug Userのダミーデータ
-    static int n = 1;
-    static String namae = "name";
-    private void addList(){
-        HashSet<String> tags = new HashSet<>();
-        tags.add("new_tag1");
-        tags.add("new_tag2");
-        tags.add("new_tag3");
-        userList.add(new MyUser(n, namae, null, "masason", "前進している", tags, 0));
-        n++;
-   }
-
-    private void debugSendData(){
-
-        namae += "e";
-        HashSet<String> tags = new HashSet<>();
-        tags.add("new_tag1");
-        tags.add("new_tag2");
-        tags.add("new_tag3");
-        MyUser user = new MyUser(n, namae, null, "masason", "前進している", tags, 0);
-        Switcher.sendData(this, user);
-        n++;
-    }
 
     public class bReceiver extends BroadcastReceiver {
         @Override
