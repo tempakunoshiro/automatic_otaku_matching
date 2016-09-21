@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
 import com.j256.ormlite.dao.Dao;
@@ -88,7 +89,7 @@ public class Switcher extends IntentService {
             }
 
             // データ送信部分
-            SharedPreferences pref = getSharedPreferences("user_data", MODE_PRIVATE);
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);;
             long id = user == null ? scream.getUserId() : user.getId() ;
             // 自分のデータが来た→通信部に送信
             if(id == pref.getLong("USER_ID", -1L)){
