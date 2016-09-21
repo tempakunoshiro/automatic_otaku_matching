@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.os.Bundle;
 
@@ -37,6 +38,7 @@ public class HirobaActivity extends AppCompatActivity {
     Display dis;
     Point imgSize;
     Point actSize;
+    bReceiver receiver;
 
     final int rows = 8;
     final int cols = 12;
@@ -57,9 +59,14 @@ public class HirobaActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_hiroba);
 
+        receiver = new bReceiver();
+        IntentFilter iFilter = new IntentFilter();
+        iFilter.addAction(Switcher.ACTION_USER_RECEIVED);
+        registerReceiver(receiver, iFilter);
+
         //debug code
-        for(int i = 0; i <= 10; i++)
-            debugSendData();
+        //for(int i = 0; i <= 10; i++)
+            //debugSendData();
             //addList();
         userList = (ArrayList)MyUser.getAllMyUser(this);
         Intent intent = getIntent();
@@ -78,8 +85,8 @@ public class HirobaActivity extends AppCompatActivity {
     public void Update(){
         lay = (RelativeLayout)findViewById(R.id.hiroba);
         //View初期化
-        System.out.println("laywidth:" + lay.getWidth());
-        System.out.println("laheight:" + lay.getHeight());
+        //System.out.println("laywidth:" + lay.getWidth());
+        //System.out.println("laheight:" + lay.getHeight());
         imgSize.set(lay.getWidth() / rows, lay.getHeight() / cols);
         lay.removeAllViews();
 
@@ -155,7 +162,7 @@ public class HirobaActivity extends AppCompatActivity {
                             posFlag = posFlag && false;
                         }
                     }
-                    System.out.println("loop" + x + ", " + y);
+                    //System.out.println("loop" + x + ", " + y);
                     if (posFlag) break;
                 }
             }
@@ -193,13 +200,6 @@ public class HirobaActivity extends AppCompatActivity {
         lay.addView(name, tlp);
     }
 
-    BroadcastReceiver bReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            userList = intent.getParcelableArrayListExtra("USER");
-            Update();
-        }
-    };
 
     public static class screamSendDialog extends DialogFragment
     {
@@ -222,9 +222,14 @@ public class HirobaActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //SendSwicher
-
-
-                    //Switcher.sendData((HirobaActivity)getActivity(), user);
+                    namae += "a";
+                    HashSet<String> tags = new HashSet<>();
+                    tags.add("new_tag1");
+                    tags.add("new_tag2");
+                    tags.add("new_tag3");
+                    MyUser user = new MyUser(n, namae, null, "masason", "前進している", tags, 0);
+                    Switcher.sendData((HirobaActivity)getActivity(), user);
+                    n++;
 
                     //HirobaActivity activity = (HirobaActivity) getActivity();
                     //activity.setTwitter(editText.getText().toString());
@@ -264,7 +269,7 @@ public class HirobaActivity extends AppCompatActivity {
 
     //debug Userのダミーデータ
     static int n = 1;
-    String namae = "name";
+    static String namae = "name";
     private void addList(){
         HashSet<String> tags = new HashSet<>();
         tags.add("new_tag1");
@@ -275,13 +280,25 @@ public class HirobaActivity extends AppCompatActivity {
    }
 
     private void debugSendData(){
-        n++;
-        String namae = "watashi";
+
+        namae += "e";
         HashSet<String> tags = new HashSet<>();
         tags.add("new_tag1");
         tags.add("new_tag2");
         tags.add("new_tag3");
         MyUser user = new MyUser(n, namae, null, "masason", "前進している", tags, 0);
         Switcher.sendData(this, user);
+        n++;
+    }
+
+    public class bReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent){
+            String action = intent.getAction();
+            if(action.equals(Switcher.ACTION_USER_RECEIVED)){
+                userList = intent.getParcelableArrayListExtra("USER");
+            }
+            Update();
+        }
     }
 }
