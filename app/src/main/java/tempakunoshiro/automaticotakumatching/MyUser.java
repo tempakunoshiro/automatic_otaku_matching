@@ -58,13 +58,14 @@ public class MyUser implements Parcelable, Serializable {
             this.tags = null;
         }else{
             List<String> tagList = new ArrayList<>();
+
             src.readStringList(tagList);
             this.tags = Collections.unmodifiableSet(new HashSet<>(tagList));
         }
        this.modifiedTime = src.readLong();
     }
 
-    public MyUser(long id, String name, Bitmap iconBmp, String twitterId, String comment, Set<String> tags, long  modifiedTime){
+    public MyUser(long id, String name, Bitmap iconBmp, String twitterId, String comment, Set<String> tags, long modifiedTime){
         if(id <= 0){
             throw new IllegalArgumentException("idは1以上にしてください");
         }
@@ -194,6 +195,10 @@ public class MyUser implements Parcelable, Serializable {
         return bmp;
     }
 
+    public byte[] getIconBytes() {
+        return iconBytes;
+    }
+
     public Set<String> getTagSet() {
         return tags;
     }
@@ -202,12 +207,46 @@ public class MyUser implements Parcelable, Serializable {
         return modifiedTime;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setIcon(Bitmap iconBmp) {
+        if(iconBmp == null){
+            this.iconBytes = null;
+        }else{
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            iconBmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            this.iconBytes = baos.toByteArray();
+        }
+    }
+
+    public void setIconBytes(byte[] iconBytes) {
+        this.iconBytes = iconBytes;
+    }
+
+    public void setTwitterId(String twitterId) {
+        this.twitterId = twitterId;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public void setTags(Set<String> tags) {
+        this.tags = tags;
+    }
+
+    public void setModifiedTime(long modifiedTime) {
+        this.modifiedTime = modifiedTime;
+    }
+
     @Override
     public String toString() {
         return "MyUser{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", iconBmp=" + Arrays.toString(iconBytes) +
+                ", iconBmp=" + iconBytes +
                 ", twitterId='" + twitterId + '\'' +
                 ", comment='" + comment + '\'' +
                 ", tags=" + tags +
