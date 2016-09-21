@@ -19,7 +19,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 public class ProfileActivity extends AppCompatActivity {
     private MyUser profile;
@@ -87,19 +89,19 @@ public class ProfileActivity extends AppCompatActivity {
 
         tagsList.addView(line);
     }
-    private void setTagSet(LinkedHashSet<String> tags) {
+    private void setTagList(List<String> tags) {
         for(String tag : tags) {
             addTag(tag);
         }
     }
-    private LinkedHashSet<String> getTagSet() {
-        LinkedHashSet<String> tagSet = new LinkedHashSet<>();
+    private List<String> getTagList() {
+        List<String> tagList = new ArrayList<>();
         for(int i = 0; i < tagsList.getChildCount(); ++i){
             LinearLayout line = (LinearLayout) tagsList.getChildAt(i);
             TextView tagText = (TextView) line.getChildAt(0);
-            tagSet.add(tagText.getText().toString().substring(1));
+            tagList.add(tagText.getText().toString().substring(1));
         }
-        return tagSet;
+        return tagList;
     }
 
     @Override
@@ -130,7 +132,7 @@ public class ProfileActivity extends AppCompatActivity {
         setName(profile.getName());
         setTwitter(profile.getTwitterId());
         setComment(profile.getComment());
-        setTagSet(profile.getTagSet());
+        setTagList(profile.getTagList());
 
         // 自分のプロフィールなら各フィールドを編集可能に
         if (editableFlg) {
@@ -178,14 +180,14 @@ public class ProfileActivity extends AppCompatActivity {
         if(!profile.getName().equals(getName()) ||
            !profile.getTwitterId().equals(getTwitter()) ||
            !profile.getComment().equals(getComment()) ||
-           !profile.getTagSet().equals(getTagSet())) {
+           !profile.getTagList().equals(getTagList())) {
             MyUser user = new MyUser(
                     profile.getId(),
                     getName(),
                     null,
                     getTwitter(),
                     getComment(),
-                    getTagSet(),
+                    getTagList(),
                     System.currentTimeMillis()
             );
             Switcher.sendData(this, user);

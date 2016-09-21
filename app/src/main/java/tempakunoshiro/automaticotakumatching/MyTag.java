@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,29 +41,34 @@ public class MyTag implements Parcelable {
         this.tag = tag;
     }
 
-    public static LinkedHashSet<String> getTagSetById(Context context, long userId) {
+    public static List<String> getTagListById(Context context, long userId) {
         DatabaseHelper dbHelper = DatabaseHelper.getInstance(context);
-        List<MyTag> tags = new ArrayList<>();
+        List<String> tags = new ArrayList<>();
         try {
             Dao taggerDao =  dbHelper.getDao(MyTagger.class);
             QueryBuilder<MyTagger, Integer> queryBuilder = taggerDao.queryBuilder();
             queryBuilder.where().eq("userId", userId);
             List<MyTagger> taggers = queryBuilder.query();
+            Collections.sort(taggers,
+                    new Comparator<MyTagger>() {
+                        public int compare(MyTagger tgg1, MyTagger tgg2) {
+                            return tgg1.getOrderNum() - tgg2.getOrderNum();
+                        }
+                    });
+
             for(MyTagger tgg : taggers){
                 Dao tagDao =  dbHelper.getDao(MyTag.class);
                 QueryBuilder<MyTag, Integer> queryBuilder2 = tagDao.queryBuilder();
                 queryBuilder2.where().eq("id", tgg.getTagId());
-                tags.addAll(queryBuilder2.query());
+                for(MyTag t : queryBuilder2.query()){
+                    tags.add(t.getTag());
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        LinkedHashSet<String> tagSet = new LinkedHashSet<>();
-        for(MyTag t : tags){
-            tagSet.add(t.getTag());
-        }
-        return tagSet;
+        return tags;
     }
 
     public static final Creator<MyTag> CREATOR = new Creator<MyTag>() {

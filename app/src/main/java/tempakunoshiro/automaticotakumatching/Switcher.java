@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
 
@@ -55,7 +56,13 @@ public class Switcher extends IntentService {
                 // tag追加処理
                 Dao tagDao = dbHelper.getDao(MyTag.class);
                 Dao taggerDao = dbHelper.getDao(MyTagger.class);
-                Set<String> tags = user.getTagSet();
+
+                DeleteBuilder<MyTagger, Integer> deleteBuilder  = taggerDao.deleteBuilder();
+                deleteBuilder.where().eq("userId", user.getId());
+                deleteBuilder.delete();
+
+                List<String> tags = user.getTagList();
+                int orderNum = 0;
                 for (String s : tags) {
                     QueryBuilder<MyTag, Integer> queryBuilder = tagDao.queryBuilder();
                     queryBuilder.where().eq("tag", s);
@@ -63,16 +70,11 @@ public class Switcher extends IntentService {
                     if (tempTags.size() == 0) {
                         MyTag t = new MyTag(s);
                         tagDao.createOrUpdate(t);
-                        taggerDao.createOrUpdate(new MyTagger(t.getId(), user.getId()));
+                        taggerDao.createOrUpdate(new MyTagger(t.getId(), user.getId(), orderNum));
                     } else {
-                        QueryBuilder<MyTagger, Integer> queryBuilder2 = taggerDao.queryBuilder();
-                        Where<MyTagger, Integer> where = queryBuilder2.where();
-                        where.and(where.eq("tagId", tempTags.get(0).getId()), where.eq("userId", user.getId()));
-                        List<MyTagger> taggers = queryBuilder2.query();
-                        if (taggers.size() == 0) {
-                            taggerDao.createOrUpdate(new MyTagger(tempTags.get(0).getId(), user.getId()));
-                        }
+                        taggerDao.createOrUpdate(new MyTagger(tempTags.get(0).getId(), user.getId(), orderNum));
                     }
+                    orderNum++;
                 }
 
                 // icon追加処理、やや処理重いので非同期注意（SQLアクセスは先にやっとけ）
@@ -89,7 +91,7 @@ public class Switcher extends IntentService {
             }
 
             // データ送信部分
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);;
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
             long id = user == null ? scream.getUserId() : user.getId() ;
             // 自分のデータが来た→通信部に送信
             if(id == pref.getLong("USER_ID", -1L)){
@@ -103,7 +105,7 @@ public class Switcher extends IntentService {
                 Intent dataIntent = new Intent(ACTION_DATA_RECEIVED);
                 if(user != null){
                     user.setIconBytes(MyIcon.getIconBytesById(this, id));
-                    user.setTagSet(MyTag.getTagSetById(this, id));
+                    user.setTagList(MyTag.getTagListById(this, id));
                     dataIntent.putExtra("USER", (Parcelable) user);
                 }
                 if(scream != null) {
@@ -120,7 +122,7 @@ public class Switcher extends IntentService {
 
                     for (MyUser u : allUsers) {
                         u.setIconBytes(MyIcon.getIconBytesById(this, u.getId()));
-                        u.setTagSet(MyTag.getTagSetById(this, u.getId()));
+                        u.setTagList(MyTag.getTagListById(this, u.getId()));
                         users.add(u);
                     }
                     userIntent.putParcelableArrayListExtra("USER", new ArrayList<>(users));

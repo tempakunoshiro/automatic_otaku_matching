@@ -25,6 +25,8 @@ public class MyTagger implements Parcelable {
     private long tagId;
     @DatabaseField(canBeNull = false, uniqueCombo = true)
     private long userId;
+    @DatabaseField(canBeNull = false)
+    private int orderNum;
 
     private MyTagger(){}
 
@@ -32,11 +34,13 @@ public class MyTagger implements Parcelable {
         this.id = in.readLong();
         this.tagId = in.readLong();
         this.userId = in.readLong();
+        this.orderNum = in.readInt();
     }
 
-    public MyTagger(long tagId, long userId) {
+    public MyTagger(long tagId, long userId, int orderNum) {
         this.tagId = tagId;
         this.userId = userId;
+        this.orderNum = orderNum;
     }
 
     public static final Creator<MyTagger> CREATOR = new Creator<MyTagger>() {
@@ -61,6 +65,7 @@ public class MyTagger implements Parcelable {
         dest.writeLong(id);
         dest.writeLong(tagId);
         dest.writeLong(userId);
+        dest.writeInt(orderNum);
     }
 
     public long getId() {
@@ -73,5 +78,9 @@ public class MyTagger implements Parcelable {
 
     public long getUserId() {
         return userId;
+    }
+
+    public int getOrderNum() {
+        return orderNum;
     }
 }

@@ -17,6 +17,7 @@ import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -39,8 +40,8 @@ public class MatchingService extends IntentService {
             return;
         }
 
-        Set<String> tags1 =  user.getTagSet();
-        Set<String> tags2 =  myself.getTagSet();
+        Set<String> tags1 =  new HashSet<>(user.getTagList());
+        Set<String> tags2 =  new HashSet<>(myself.getTagList());
 
         int matchingCount = 0;
         for(String t1 : tags1){

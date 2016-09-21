@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -87,7 +88,7 @@ public class HirobaActivity extends AppCompatActivity {
 
             myId = new Long(id);
 
-            LinkedHashSet<String> tags = new LinkedHashSet<String>();
+            List<String> tags = new ArrayList<String>();
 
             String name = (String)getString(R.string.default_name);
 
