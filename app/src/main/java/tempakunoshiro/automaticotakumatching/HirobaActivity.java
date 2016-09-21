@@ -59,7 +59,9 @@ public class HirobaActivity extends AppCompatActivity {
 
         //debug code
         for(int i = 0; i <= 10; i++)
-            addList();
+            debugSendData();
+            //addList();
+        userList = (ArrayList)MyUser.getAllMyUser(this);
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         if(bundle != null){
@@ -221,6 +223,9 @@ public class HirobaActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     //SendSwicher
 
+
+                    //Switcher.sendData((HirobaActivity)getActivity(), user);
+
                     //HirobaActivity activity = (HirobaActivity) getActivity();
                     //activity.setTwitter(editText.getText().toString());
                 }
@@ -258,7 +263,7 @@ public class HirobaActivity extends AppCompatActivity {
     }
 
     //debug Userのダミーデータ
-    int n = 1;
+    static int n = 1;
     String namae = "name";
     private void addList(){
         HashSet<String> tags = new HashSet<>();
@@ -268,4 +273,15 @@ public class HirobaActivity extends AppCompatActivity {
         userList.add(new MyUser(n, namae, null, "masason", "前進している", tags, 0));
         n++;
    }
+
+    private void debugSendData(){
+        n++;
+        String namae = "watashi";
+        HashSet<String> tags = new HashSet<>();
+        tags.add("new_tag1");
+        tags.add("new_tag2");
+        tags.add("new_tag3");
+        MyUser user = new MyUser(n, namae, null, "masason", "前進している", tags, 0);
+        Switcher.sendData(this, user);
+    }
 }
