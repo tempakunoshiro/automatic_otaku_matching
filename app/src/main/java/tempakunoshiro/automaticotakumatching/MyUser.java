@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,7 +37,7 @@ public class MyUser implements Parcelable, Serializable {
     private String twitterId;
     @DatabaseField(canBeNull = false)
     private String comment;
-    private Set<String> tags;
+    private LinkedHashSet<String> tags;
     @DatabaseField(canBeNull = false)
     private long modifiedTime;
 
@@ -58,14 +59,13 @@ public class MyUser implements Parcelable, Serializable {
             this.tags = null;
         }else{
             List<String> tagList = new ArrayList<>();
-
             src.readStringList(tagList);
-            this.tags = Collections.unmodifiableSet(new HashSet<>(tagList));
+            this.tags = new LinkedHashSet<>(tagList);
         }
        this.modifiedTime = src.readLong();
     }
 
-    public MyUser(long id, String name, Bitmap iconBmp, String twitterId, String comment, Set<String> tags, long modifiedTime){
+    public MyUser(long id, String name, Bitmap iconBmp, String twitterId, String comment, LinkedHashSet<String> tags, long modifiedTime){
         if(id <= 0){
             throw new IllegalArgumentException("idは1以上にしてください");
         }
@@ -83,16 +83,6 @@ public class MyUser implements Parcelable, Serializable {
         this.comment = comment;
         this.tags = tags;
         this.modifiedTime = modifiedTime;
-    }
-
-    protected MyUser(MyUser user, byte[] iconBytes, Set<String> tags){
-        this.id = user.getId();
-        this.name = user.getName();
-        this.iconBytes = iconBytes;
-        this.twitterId = user.getTwitterId();
-        this.comment = user.getComment();
-        this.tags = tags;
-        this.modifiedTime = user.getModifiedTime();
     }
 
     @Nullable
@@ -113,7 +103,9 @@ public class MyUser implements Parcelable, Serializable {
         if(user == null){
             return null;
         }
-        return new MyUser(user, MyIcon.getIconBytesById(context, userId), MyTag.getTagSetById(context, userId));
+        user.setIconBytes(MyIcon.getIconBytesById(context, userId));
+        user.setTagSet(MyTag.getTagSetById(context, userId));
+        return user;
     }
 
     public static List<MyUser> getAllMyUser(Context context) {
@@ -123,7 +115,9 @@ public class MyUser implements Parcelable, Serializable {
             Dao userDao = dbHelper.getDao(MyUser.class);
             List<MyUser> tempUsers = userDao.queryForAll();
             for(MyUser u : tempUsers){
-                users.add(new MyUser(u, MyIcon.getIconBytesById(context, u.getId()), MyTag.getTagSetById(context, u.getId())));
+                u.setIconBytes(MyIcon.getIconBytesById(context, u.getId()));
+                u.setTagSet(MyTag.getTagSetById(context, u.getId()));
+                users.add(u);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -199,8 +193,8 @@ public class MyUser implements Parcelable, Serializable {
         return iconBytes;
     }
 
-    public Set<String> getTagSet() {
-        return tags;
+    public LinkedHashSet<String> getTagSet() {
+        return new LinkedHashSet<>(tags);
     }
 
     public long getModifiedTime() {
@@ -233,7 +227,7 @@ public class MyUser implements Parcelable, Serializable {
         this.comment = comment;
     }
 
-    public void setTags(Set<String> tags) {
+    public void setTagSet(LinkedHashSet<String> tags) {
         this.tags = tags;
     }
 

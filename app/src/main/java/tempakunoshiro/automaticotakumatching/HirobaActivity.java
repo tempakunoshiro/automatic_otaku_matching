@@ -30,6 +30,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -86,7 +87,7 @@ public class HirobaActivity extends AppCompatActivity {
 
             myId = new Long(id);
 
-            Set<String> tags = new HashSet<String>();
+            LinkedHashSet<String> tags = new LinkedHashSet<String>();
 
             String name = (String)getString(R.string.default_name);
 
@@ -104,6 +105,7 @@ public class HirobaActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
+        userList = (ArrayList)MyUser.getAllMyUser(this);
         Update();
     }
 
