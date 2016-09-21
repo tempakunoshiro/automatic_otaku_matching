@@ -91,10 +91,17 @@ public class Switcher extends IntentService {
             SharedPreferences pref = getSharedPreferences("user_data", MODE_PRIVATE);
             long id = user == null ? scream.getUserId() : user.getId() ;
             // 自分のデータが来た→通信部に送信
-            if(id == pref.getLong("user_id", -1L)){
+            if(id == pref.getLong("USER_ID", -1L)){
+                if(user != null
+                        && user.getName().equals(getString(R.string.default_name))
+                        && user.getModifiedTime() == 0){
+                    return;
+                }
                 Intent dataIntent = new Intent(ACTION_DATA_RECEIVED);
                 if(user != null){
-                    dataIntent.putExtra("USER", (Parcelable) new MyUser(user, MyIcon.getIconBytesById(this, id), MyTag.getTagSetById(this, id)));
+                    user.setIconBytes(MyIcon.getIconBytesById(this, id));
+                    user.setTagSet(MyTag.getTagSetById(this, id));
+                    dataIntent.putExtra("USER", (Parcelable) user);
                 }
                 if(scream != null) {
                     dataIntent.putExtra("SCREAM", (Parcelable) scream);
@@ -109,7 +116,9 @@ public class Switcher extends IntentService {
                     List<MyUser> users = new ArrayList<>();
 
                     for (MyUser u : allUsers) {
-                        users.add(new MyUser(u, MyIcon.getIconBytesById(this, u.getId()), MyTag.getTagSetById(this, u.getId())));
+                        u.setIconBytes(MyIcon.getIconBytesById(this, u.getId()));
+                        u.setTagSet(MyTag.getTagSetById(this, u.getId()));
+                        users.add(u);
                     }
                     userIntent.putParcelableArrayListExtra("USER", new ArrayList<>(users));
                     sendBroadcast(userIntent);

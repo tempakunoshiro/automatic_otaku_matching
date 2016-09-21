@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -39,7 +40,7 @@ public class MyTag implements Parcelable {
         this.tag = tag;
     }
 
-    public static Set<String> getTagSetById(Context context, long userId) {
+    public static LinkedHashSet<String> getTagSetById(Context context, long userId) {
         DatabaseHelper dbHelper = DatabaseHelper.getInstance(context);
         List<MyTag> tags = new ArrayList<>();
         try {
@@ -57,11 +58,11 @@ public class MyTag implements Parcelable {
             e.printStackTrace();
         }
 
-        Set<String> tagSet = new HashSet<>();
+        LinkedHashSet<String> tagSet = new LinkedHashSet<>();
         for(MyTag t : tags){
             tagSet.add(t.getTag());
         }
-        return Collections.unmodifiableSet(tagSet);
+        return tagSet;
     }
 
     public static final Creator<MyTag> CREATOR = new Creator<MyTag>() {
