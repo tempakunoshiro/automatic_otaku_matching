@@ -132,7 +132,7 @@ public class HirobaActivity extends AppCompatActivity {
     public void update(){
         lay = (RelativeLayout)findViewById(R.id.hiroba);
         imgSize.set(lay.getWidth() / rows, lay.getHeight() / cols);
-        lay.removeAllViews();
+        lay.removeAllViewsInLayout();
 
         //画面サイズ取得
         setScreamButton();
@@ -144,7 +144,7 @@ public class HirobaActivity extends AppCompatActivity {
             showScream((MyScream)o);
         }
         //表示
-        setContentView(lay);
+        //setContentView(lay);
     }
 
     private void setScreamButton(){
@@ -273,15 +273,6 @@ public class HirobaActivity extends AppCompatActivity {
                     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences((HirobaActivity)getActivity());
                     long id = pref.getLong("USER_ID", 0);
                     Switcher.sendData((HirobaActivity)getActivity(), new MyScream(id, editText.getText().toString(), System.currentTimeMillis()));
-//                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences((HirobaActivity)getActivity());
-//                    long id = pref.getLong("USER_ID", 0);
-//                    id = 1;
-//                    List<String> tags = new ArrayList<String>();
-//                    Switcher.sendData(
-//                            (HirobaActivity)getActivity(),
-//                            new MyUser(id, "name", null, "twitter", "comment", tags, System.currentTimeMillis()),
-//                            new MyScream(id, editText.getText().toString(), System.currentTimeMillis())
-//                    );
                 }
             });
             return builder.create();
@@ -344,6 +335,7 @@ public class HirobaActivity extends AppCompatActivity {
             String action = intent.getAction();
             if(action.equals(Switcher.ACTION_DATA_RECEIVED)) {
                 userList = (ArrayList)MyUser.getAllMyUser((HirobaActivity)HirobaActivity.this);
+                screamList = (ArrayList)MyScream.getAllMyScream((HirobaActivity)HirobaActivity.this);
             }
             if(action.equals(Switcher.ACTION_USER_RECEIVED)) {
                 userList = intent.getParcelableArrayListExtra("USER");
