@@ -21,9 +21,9 @@ import java.util.List;
 public class MyTagger implements Parcelable {
     @DatabaseField(generatedId = true)
     private long id;
-    @DatabaseField(canBeNull = false, uniqueCombo = true)
+    @DatabaseField(canBeNull = false)
     private long tagId;
-    @DatabaseField(canBeNull = false, uniqueCombo = true)
+    @DatabaseField(canBeNull = false)
     private long userId;
     @DatabaseField(canBeNull = false)
     private int orderNum;

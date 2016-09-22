@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.Dao.CreateOrUpdateStatus;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
@@ -38,10 +39,14 @@ public class Switcher extends IntentService {
 
         DatabaseHelper dbHelper = DatabaseHelper.getInstance(this);
         try {
+            boolean isNewUser = false;
             // user追加処理
             Dao userDao = dbHelper.getDao(MyUser.class);
             if(user != null){
-                userDao.createOrUpdate(user);
+                CreateOrUpdateStatus status =  userDao.createOrUpdate(user);
+                if(status.isCreated()){
+                    isNewUser = true;
+                }
             }
             List<MyUser> allUsers = userDao.queryForAll();
 
@@ -139,7 +144,7 @@ public class Switcher extends IntentService {
                 }
 
                 // マッチング部分に処理投げる
-                if(user != null) {
+                if(user != null && isNewUser) {
                     Intent matchingIntent = new Intent(this, MatchingService.class);
                     matchingIntent.putExtra("USER", (Parcelable) user);
                     startService(matchingIntent);
@@ -150,13 +155,6 @@ public class Switcher extends IntentService {
         }
     }
 
-    public static void sendData(Context context, MyUser user, MyScream scream) {
-        Intent intent = new Intent(context, Switcher.class);
-        intent.putExtra("USER", (Parcelable) user);
-        intent.putExtra("SCREAM", (Parcelable) scream);
-        context.startService(intent);
-    }
-
     public static void sendData(Context context, MyUser user) {
         Intent intent = new Intent(context, Switcher.class);
         intent.putExtra("USER", (Parcelable) user);
@@ -165,6 +163,13 @@ public class Switcher extends IntentService {
 
     public static void sendData(Context context, MyScream scream) {
         Intent intent = new Intent(context, Switcher.class);
+        intent.putExtra("SCREAM", (Parcelable) scream);
+        context.startService(intent);
+    }
+
+    public static void sendData(Context context, MyUser user, MyScream scream) {
+        Intent intent = new Intent(context, Switcher.class);
+        intent.putExtra("USER", (Parcelable) user);
         intent.putExtra("SCREAM", (Parcelable) scream);
         context.startService(intent);
     }
