@@ -126,6 +126,8 @@ public class HirobaActivity extends AppCompatActivity {
 
         userList = (ArrayList)MyUser.getAllMyUser(this);
         update();
+
+        RandomDataSender.sendRandomData(this, 3000);
     }
 
 

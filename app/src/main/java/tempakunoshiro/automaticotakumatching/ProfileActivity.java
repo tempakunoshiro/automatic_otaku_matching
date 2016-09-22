@@ -227,8 +227,8 @@ public class ProfileActivity extends AppCompatActivity {
                 FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
                 Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
                 parcelFileDescriptor.close();
-                Bitmap resizeImage = resizeBitmap(image);
-                setIcon(resizeImage);
+                Bitmap resizedImage = resizeBitmap(image);
+                setIcon(resizedImage);
             } catch (IOException e) {
                 e.printStackTrace();
             }
