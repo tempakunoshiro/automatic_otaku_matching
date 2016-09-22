@@ -45,7 +45,7 @@ public class ProfileListActivity extends AppCompatActivity {
         for(String tag : profile.getTagList()) {
             tagStrBldr.append(" / #" + tag);
         }
-        tagsText.setText(tagStrBldr.substring(4));
+        tagsText.setText(tagStrBldr.toString().replaceFirst(" / #", ""));
 
         record.setOnClickListener(new View.OnClickListener() {
             private long id;
@@ -74,6 +74,7 @@ public class ProfileListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile_list);
 
         profileList = (LinearLayout) findViewById(R.id.profileList);
+
 
         LayoutInflater inflater = LayoutInflater.from(this);
 

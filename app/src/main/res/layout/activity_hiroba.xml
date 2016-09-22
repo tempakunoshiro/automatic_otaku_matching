@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/hiroba"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -11,26 +10,143 @@
     tools:context="tempakunoshiro.automaticotakumatching.HirobaActivity">
 
     <!--<TextView-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="HirobaActivity"-->
-        <!--android:id="@+id/textView2"-->
-        <!--android:layout_alignParentTop="true"-->
-        <!--android:layout_alignParentStart="true" />-->
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/myImage"
-        android:src="@android:drawable/sym_def_app_icon"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="HirobaActivity"-->
+    <!--android:id="@+id/textView2"-->
+    <!--android:layout_alignParentTop="true"-->
+    <!--android:layout_alignParentStart="true" />-->
 
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/hiroba">
+
+            <include layout="@layout/hiroba_otaku_icon"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/myIcon"
+                 ></include>
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/include3"
+                android:layout_above="@+id/include5"
+                android:layout_alignStart="@+id/include8" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/include2"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/include11" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/include8"
+                android:layout_below="@+id/include13"
+                android:layout_centerHorizontal="true" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/include7"
+                android:layout_alignTop="@+id/include2"
+                android:layout_toEndOf="@+id/include4" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/include4"
+                android:layout_below="@+id/include6"
+                android:layout_toEndOf="@+id/myIcon" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center|left"
+                android:layout_below="@+id/myIcon"
+                android:layout_toEndOf="@+id/myIcon"
+                android:id="@+id/include13" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_below="@+id/myIcon"
+                android:layout_toStartOf="@+id/myIcon"
+                android:id="@+id/include11" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/include5"
+                android:layout_above="@+id/myIcon"
+                android:layout_toStartOf="@+id/myIcon" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/include6"
+                android:layout_alignTop="@+id/include3"
+                android:layout_alignStart="@+id/include7" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/include9"
+                android:layout_alignTop="@+id/include3"
+                android:layout_toStartOf="@+id/include5" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/include10"
+                android:layout_alignBottom="@+id/include8"
+                android:layout_toStartOf="@+id/include11" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/include12"
+                android:layout_alignBottom="@+id/include8"
+                android:layout_toEndOf="@+id/include13"
+                />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/textView2"
-        android:layout_above="@+id/myImage"
-        android:layout_centerHorizontal="true"
-        android:background="@android:drawable/editbox_dropdown_light_frame" />
+        android:layout_gravity="bottom|right|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@android:drawable/stat_notify_chat"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/screamButton"
+        android:clickable="true"
+        android:onClick="onScreamButtonTapped" />
+
 </RelativeLayout>
