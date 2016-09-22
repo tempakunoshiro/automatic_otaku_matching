@@ -97,13 +97,10 @@ public class Switcher extends IntentService {
 
             // データ送信部分
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-            long id = user == null ? scream.getUserId() : user.getId() ;
+            long id = user == null ? scream.getUserId() : user.getId();
             // 自分のデータが来た→通信部に送信
             if(id == pref.getLong("USER_ID", -1L)){
-
-                if(user != null
-                        && user.getName().equals(getString(R.string.default_name))
-                        && user.getModifiedTime() == 0){
+                if(user != null && user.getModifiedTime() == 0 && user.getName().equals(getString(R.string.default_name))){
                     return;
                 }
 
