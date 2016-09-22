@@ -190,9 +190,7 @@ public class ProfileActivity extends AppCompatActivity {
                     System.currentTimeMillis()
             );
             Switcher.sendData(this, user);
-            System.out.println("new data: " + user.toString());
-         }
-        System.out.println("database: " + MyUser.getMyUserById(this, profile.getId()).toString());
+        }
     }
 
     public void onTwitterButtonTapped(View view) {
