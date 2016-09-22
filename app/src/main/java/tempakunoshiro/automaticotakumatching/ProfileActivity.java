@@ -39,6 +39,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView commentText;
     private LinearLayout addTagButton;
     private final static int CHOOSE_IMAGE_CODE = 10000;
+    private final static int ICON_LONG_SIDE_LEN = 256;
 
     // アクセサ
     private void setIcon(Bitmap bitmap) {
@@ -202,6 +203,24 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    protected Bitmap resizeBitmap(Bitmap original) {
+        if (original.getWidth() < original.getHeight()) {
+            return Bitmap.createScaledBitmap(
+                original,
+                ICON_LONG_SIDE_LEN * original.getWidth() / original.getHeight(),
+                ICON_LONG_SIDE_LEN,
+                false
+            );
+        } else {
+            return Bitmap.createScaledBitmap(
+                original,
+                ICON_LONG_SIDE_LEN,
+                ICON_LONG_SIDE_LEN * original.getHeight() / original.getWidth(),
+                false
+            );
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -213,7 +232,8 @@ public class ProfileActivity extends AppCompatActivity {
                 FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
                 Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
                 parcelFileDescriptor.close();
-                iconImage.setImageBitmap(image);
+                Bitmap resizeImage = resizeBitmap(image);
+                setIcon(resizeImage);
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -25,7 +25,6 @@
         <service android:name=".MatchingService" />
         <service android:name=".RandomDataSender" />
 
-        <activity android:name=".BitmapPreviewActivity"></activity>
     </application>
 
 </manifest>
