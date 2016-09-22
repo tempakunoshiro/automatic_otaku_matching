@@ -180,17 +180,16 @@ public class MyUser implements Parcelable, Serializable {
 
     public Bitmap getIcon() {
         if(iconBytes == null){
-            if("エモ=オタク".equals(name)){
-                return  BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.emootaku_icon);
-            }else{
-                return  BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.otaku_icon);
-            }
+            return getDefaultIcon();
         }
         Bitmap bmp = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.length);
         return bmp;
     }
 
     public byte[] getIconBytes() {
+        if(iconBytes == null){
+            return getDefaultIconBytes();
+        }
         return iconBytes;
     }
 
@@ -208,13 +207,7 @@ public class MyUser implements Parcelable, Serializable {
 
     public void setIcon(Bitmap iconBmp) {
         if(iconBmp == null){
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            if("エモ=オタク".equals(name)){
-                BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.emootaku_icon).compress(Bitmap.CompressFormat.PNG, 100, baos);
-            }else{
-                BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.otaku_icon).compress(Bitmap.CompressFormat.PNG, 100, baos);
-            }
-            this.iconBytes = baos.toByteArray();
+            this.iconBytes = getDefaultIconBytes();
         }else{
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             iconBmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
@@ -223,7 +216,24 @@ public class MyUser implements Parcelable, Serializable {
     }
 
     public void setIconBytes(byte[] iconBytes) {
+        if(iconBytes == null){
+            this.iconBytes = getDefaultIconBytes();
+        }
         this.iconBytes = iconBytes;
+    }
+
+    private byte[] getDefaultIconBytes(){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        getDefaultIcon().compress(Bitmap.CompressFormat.PNG, 100, baos);
+        return baos.toByteArray();
+    }
+
+    private Bitmap getDefaultIcon(){
+        if("エモ=オタク".equals(name)){
+            return BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.emootaku_icon);
+        }else{
+            return BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.otaku_icon);
+        }
     }
 
     public void setTwitterId(String twitterId) {
