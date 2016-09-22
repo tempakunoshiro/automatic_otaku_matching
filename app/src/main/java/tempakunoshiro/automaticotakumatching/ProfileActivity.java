@@ -7,8 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
@@ -19,6 +22,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.FileDescriptor;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +31,22 @@ public class ProfileActivity extends AppCompatActivity {
     private MyUser profile;
     private boolean editableFlg = false;
     private ImageView iconImage;
+    private Bitmap iconBitmap;
     private TextView nameText;
     private TextView twitterText;
     private LinearLayout tagList;
     private TextView commentText;
     private LinearLayout addTagButton;
+    private final static int CHOOSE_IMAGE_CODE = 10000;
 
     // アクセサ
+    private void setIcon(Bitmap bitmap) {
+        iconBitmap = bitmap;
+        iconImage.setImageBitmap(bitmap);
+    }
+    private Bitmap getIcon() {
+        return iconBitmap;
+    }
     private void setName(String name) {
         nameText.setText(name);
     }
@@ -127,7 +141,12 @@ public class ProfileActivity extends AppCompatActivity {
 
         // データベースからデータを取得し各Viewにセット
         profile = MyUser.getMyUserById(this, id);
-        //iconImage.setImageDrawable();
+        Bitmap iconBitmap = profile.getIcon();
+        if (iconBitmap != null) {
+            setIcon(profile.getIcon());
+        } else {
+            setIcon(BitmapFactory.decodeResource(getResources(), R.drawable.otaku_icon));
+        }
         setName(profile.getName());
         setTwitter(profile.getTwitterId());
         setComment(profile.getComment());
@@ -135,6 +154,14 @@ public class ProfileActivity extends AppCompatActivity {
 
         // 自分のプロフィールなら各フィールドを編集可能に
         if (editableFlg) {
+            iconImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("image/*");
+                    startActivityForResult(intent, CHOOSE_IMAGE_CODE);
+                }
+            });
             nameText.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -172,25 +199,50 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CHOOSE_IMAGE_CODE && resultCode == RESULT_OK) {
+            try {
+                Uri uri = data.getData();
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContentResolver().openFileDescriptor(uri, "r");
+                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+                parcelFileDescriptor.close();
+                iconImage.setImageBitmap(image);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
-
-        // TODO: アイコン変更対応
-        if(!profile.getName().equals(getName()) ||
-           !profile.getTwitterId().equals(getTwitter()) ||
-           !profile.getComment().equals(getComment()) ||
-           !profile.getTagList().equals(getTagList())) {
-            MyUser user = new MyUser(
-                    profile.getId(),
-                    getName(),
-                    null,
-                    getTwitter(),
-                    getComment(),
-                    getTagList(),
-                    System.currentTimeMillis()
-            );
+        System.out.println("onPause start!");
+        if(!getIcon().equals(profile.getIcon()) ||
+           !getName().equals(profile.getName()) ||
+           !getTwitter().equals(profile.getTwitterId()) ||
+           !getComment().equals(profile.getComment()) ||
+           !getTagList().equals(profile.getTagList())) {
+            MyUser user = currentProfile();
+            System.out.println("書き込み開始");
             Switcher.sendData(this, user);
+            System.out.println("書き込み終了");
         }
+        System.out.println("ouPause end!");
+    }
+
+    private MyUser currentProfile() {
+        return new MyUser(
+                profile.getId(),
+                getName(),
+                getIcon(),
+                getTwitter(),
+                getComment(),
+                getTagList(),
+                System.currentTimeMillis()
+        );
     }
 
     public void onTwitterButtonTapped(View view) {
