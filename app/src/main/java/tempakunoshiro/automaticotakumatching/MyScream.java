@@ -12,6 +12,8 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -62,6 +64,18 @@ public class MyScream implements Parcelable, Serializable {
             e.printStackTrace();
         }
         return scream;
+    }
+
+    @Nullable
+    public static List<MyScream> getAllMyScream(Context context) {
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance(context);
+        try {
+            Dao screamDao = dbHelper.getDao(MyScream.class);
+            return screamDao.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
     }
 
     @Override
