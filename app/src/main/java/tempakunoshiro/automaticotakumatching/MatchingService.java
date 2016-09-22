@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
@@ -34,8 +35,8 @@ public class MatchingService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         MyUser user = intent.getParcelableExtra("USER");
-        SharedPreferences pref = getSharedPreferences("user_data", MODE_PRIVATE);
-        MyUser myself = MyUser.getMyUserById(getApplicationContext(), pref.getLong("user_id", -1L));
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        MyUser myself = MyUser.getMyUserById(getApplicationContext(), pref.getLong("USER_ID", -1L));
         if(user == null || myself == null){
             return;
         }
@@ -65,16 +66,18 @@ public class MatchingService extends IntentService {
             builder.setDefaults(Notification.DEFAULT_VIBRATE);
         }
 
-//        Intent resultIntent = new Intent(this, MainActivity.class);
-//        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-//        stackBuilder.addParentStack(MainActivity.class);
-//        stackBuilder.addNextIntent(resultIntent);
-//        PendingIntent resultPendingIntent =
-//                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-//        builder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
+        Intent resultIntent = new Intent(this, ProfileActivity.class);
+        resultIntent.putExtra("ID", user.getId());
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(ProfileActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(resultPendingIntent);
+
+        NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(1089, builder.build());
+        notificationManager.notify(1089, builder.build());
 
         Intent matchingIntent = new Intent(ACTION_MATCHING_RECEIVED);
         sendBroadcast(matchingIntent);
