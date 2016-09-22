@@ -95,7 +95,7 @@
                     android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/tagsList"
+                    android:id="@+id/tagList"
                     android:paddingLeft="15dp"></LinearLayout>
 
                 <LinearLayout

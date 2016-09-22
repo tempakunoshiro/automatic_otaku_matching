@@ -20,7 +20,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -29,7 +28,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView iconImage;
     private TextView nameText;
     private TextView twitterText;
-    private LinearLayout tagsList;
+    private LinearLayout tagList;
     private TextView commentText;
     private LinearLayout addTagButton;
 
@@ -81,13 +80,13 @@ public class ProfileActivity extends AppCompatActivity {
                 }
                 @Override
                 public void onClick(View view) {
-                    tagsList.removeView(line);
+                    tagList.removeView(line);
                 }
             }.getInstance(line));
             line.addView(delButton);
         }
 
-        tagsList.addView(line);
+        tagList.addView(line);
     }
     private void setTagList(List<String> tags) {
         for(String tag : tags) {
@@ -95,13 +94,13 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
     private List<String> getTagList() {
-        List<String> tagList = new ArrayList<>();
-        for(int i = 0; i < tagsList.getChildCount(); ++i){
-            LinearLayout line = (LinearLayout) tagsList.getChildAt(i);
+        List<String> tagArrayList = new ArrayList<>();
+        for(int i = 0; i < tagList.getChildCount(); ++i){
+            LinearLayout line = (LinearLayout) tagList.getChildAt(i);
             TextView tagText = (TextView) line.getChildAt(0);
-            tagList.add(tagText.getText().toString().substring(1));
+            tagArrayList.add(tagText.getText().toString().substring(1));
         }
-        return tagList;
+        return tagArrayList;
     }
 
     @Override
@@ -122,7 +121,7 @@ public class ProfileActivity extends AppCompatActivity {
         iconImage = (ImageView) findViewById(R.id.iconImage);
         nameText = (TextView) findViewById(R.id.nameText);
         twitterText = (TextView) findViewById(R.id.twitterText);
-        tagsList = (LinearLayout) findViewById(R.id.tagsList);
+        tagList = (LinearLayout) findViewById(R.id.tagList);
         commentText = (TextView) findViewById(R.id.commentText);
         addTagButton = (LinearLayout) findViewById(R.id.addTagButton);
 
