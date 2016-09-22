@@ -17,6 +17,8 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -43,8 +45,9 @@ public class ProfileActivity extends AppCompatActivity {
 
     // アクセサ
     private void setIcon(Bitmap bitmap) {
-        iconBitmap = bitmap;
-        iconImage.setImageBitmap(bitmap);
+        Bitmap resizedBitmap = resizeBitmap(bitmap);
+        iconBitmap = resizedBitmap;
+        iconImage.setImageBitmap(resizedBitmap);
     }
     private Bitmap getIcon() {
         return iconBitmap;
@@ -198,6 +201,46 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuItem goHirobaItem = menu.add(R.string.go_hiroba_text);
+        goHirobaItem.setIcon(android.R.drawable.ic_menu_myplaces);
+        goHirobaItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        goHirobaItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(ProfileActivity.this, HirobaActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+        MenuItem goScreamListItem = menu.add(R.string.go_scream_list_text);
+        goScreamListItem.setIcon(android.R.drawable.ic_menu_agenda);
+        goScreamListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        //goScreamListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        //    @Override
+        //    public boolean onMenuItemClick(MenuItem item) {
+        //        Intent intent = new Intent(ProfileActivity.this, ScreamListActivity.class);
+        //        startActivity(intent);
+        //        return false;
+        //    }
+        //});
+
+        MenuItem goProfileListItem = menu.add(R.string.go_profile_list_text);
+        goProfileListItem.setIcon(android.R.drawable.ic_menu_my_calendar);
+        goProfileListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        goProfileListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(ProfileActivity.this, ProfileListActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+        return true;
+    }
+
     protected Bitmap resizeBitmap(Bitmap original) {
         if (original.getWidth() < original.getHeight()) {
             return Bitmap.createScaledBitmap(
@@ -227,8 +270,7 @@ public class ProfileActivity extends AppCompatActivity {
                 FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
                 Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
                 parcelFileDescriptor.close();
-                Bitmap resizedImage = resizeBitmap(image);
-                setIcon(resizedImage);
+                setIcon(image);
             } catch (IOException e) {
                 e.printStackTrace();
             }

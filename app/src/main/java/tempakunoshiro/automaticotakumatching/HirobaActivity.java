@@ -11,12 +11,13 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Bundle;
-
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -126,8 +127,6 @@ public class HirobaActivity extends AppCompatActivity {
 
         userList = (ArrayList)MyUser.getAllMyUser(this);
         update();
-
-        RandomDataSender.sendRandomData(this, 3000);
     }
 
 
@@ -330,6 +329,45 @@ public class HirobaActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuItem goHirobaItem = menu.add(R.string.go_hiroba_text);
+        goHirobaItem.setIcon(android.R.drawable.ic_menu_myplaces);
+        goHirobaItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        goHirobaItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(HirobaActivity.this, HirobaActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+        MenuItem goScreamListItem = menu.add(R.string.go_scream_list_text);
+        goScreamListItem.setIcon(android.R.drawable.ic_menu_agenda);
+        goScreamListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        //goScreamListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        //    @Override
+        //    public boolean onMenuItemClick(MenuItem item) {
+        //        Intent intent = new Intent(HirobaActivity.this, ScreamListActivity.class);
+        //        startActivity(intent);
+        //        return false;
+        //    }
+        //});
+
+        MenuItem goProfileListItem = menu.add(R.string.go_profile_list_text);
+        goProfileListItem.setIcon(android.R.drawable.ic_menu_my_calendar);
+        goProfileListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        goProfileListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(HirobaActivity.this, ProfileListActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+        return true;
+    }
 
     private class SwicherReceiver extends BroadcastReceiver {
         @Override
