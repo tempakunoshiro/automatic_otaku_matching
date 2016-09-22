@@ -16,7 +16,6 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,28 +28,32 @@ import android.widget.TextView;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class HirobaActivity extends AppCompatActivity {
 
     ArrayList userList;
+    ArrayList screamList;
     RelativeLayout lay;
     HashMap<Long, Point> userPos;
     ArrayList<Long> imgUserList;
-    Display dis;
     Point imgSize;
     Point actSize;
-    bReceiver receiver;
+    SwicherReceiver receiver;
+    BroadcastReceiver timerReceiver;
 
     final int rows = 8;
     final int cols = 12;
-    Long[][] idTable = new Long[rows][cols];
+    Long[][] idTable;
     Long myId;
+
+    private static final String ACTION_TIMER_RECEIVED = "tempakunoshiro.automaticotakumatching.ACTION_TIMER_RECEIVED";
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,22 +63,35 @@ public class HirobaActivity extends AppCompatActivity {
 
         myId = pref.getLong("USER_ID", 0);
 
+
+        userList = new ArrayList();
+        screamList = new ArrayList();
+        imgUserList = new ArrayList<Long>();
+        userPos = new HashMap<Long, Point>();
+        imgSize = new Point();
+        idTable = new Long[rows][cols];
+
         for(int i = 0; i < rows; i++){
             for(int j = 0; j < cols; j++){
                 idTable[i][j] = new Long(0);
             }
         }
-        userList = new ArrayList();
-        imgUserList = new ArrayList<Long>();
-        userPos = new HashMap<Long, Point>();
-        imgSize = new Point();
 
         setContentView(R.layout.activity_hiroba);
 
-        receiver = new bReceiver();
+        receiver = new SwicherReceiver();
         IntentFilter iFilter = new IntentFilter();
         iFilter.addAction(Switcher.ACTION_USER_RECEIVED);
+        iFilter.addAction(Switcher.ACTION_SCREAM_RECEIVED);
+        iFilter.addAction(Switcher.ACTION_DATA_RECEIVED);
+
         registerReceiver(receiver, iFilter);
+
+        timerReceiver = new TimerReceiver();
+        IntentFilter timerFilter = new IntentFilter();
+        timerFilter.addAction(ACTION_TIMER_RECEIVED);
+
+        registerReceiver(timerReceiver, timerFilter);
 
 
 
@@ -91,8 +107,10 @@ public class HirobaActivity extends AppCompatActivity {
             List<String> tags = new ArrayList<String>();
 
             String name = (String)getString(R.string.default_name);
+            String twitter = (String)getString(R.string.default_twitter);
+            String comment = (String)getString(R.string.default_comment);
 
-            Switcher.sendData(this, new MyUser(id, name, null, "twitter", "コメントを入力してください.", tags, 0));
+            Switcher.sendData(this, new MyUser(id, name, null, twitter, comment, tags, 0));
 
 
             Intent intent = new Intent(HirobaActivity.this, ProfileActivity.class);
@@ -107,20 +125,23 @@ public class HirobaActivity extends AppCompatActivity {
         }
 
         userList = (ArrayList)MyUser.getAllMyUser(this);
-        Update();
+        update();
     }
 
 
-    public void Update(){
+    public void update(){
         lay = (RelativeLayout)findViewById(R.id.hiroba);
         imgSize.set(lay.getWidth() / rows, lay.getHeight() / cols);
         lay.removeAllViews();
 
         //画面サイズ取得
         setScreamButton();
-        dis = getWindowManager().getDefaultDisplay();
         for(Object o: userList){
             setUser((MyUser)o);
+        }
+
+        for(Object o: screamList){
+            showScream((MyScream)o);
         }
         //表示
         setContentView(lay);
@@ -137,7 +158,7 @@ public class HirobaActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String value = "";
-                screamSendDialog dialog = screamSendDialog.newInstance(value);
+                ScreamSendDialog dialog = ScreamSendDialog.newInstance(value);
                 dialog.show(getFragmentManager(), "dialog");
             }
         };
@@ -195,10 +216,10 @@ public class HirobaActivity extends AppCompatActivity {
             imgUserList.add(u.getId());
         }
 
-        img.setTranslationX(userPos.get(u.getId()).x * imgSize.x);
-        img.setTranslationY(userPos.get(u.getId()).y * imgSize.y);
-        name.setTranslationX(userPos.get(u.getId()).x * imgSize.x);
-        name.setTranslationY(userPos.get(u.getId()).y * imgSize.y + imgSize.y / 2);
+        img.setTranslationX(userPosition(u.getId()).x);
+        img.setTranslationY(userPosition(u.getId()).y);
+        name.setTranslationX(userPosition(u.getId()).x);
+        name.setTranslationY(userPosition(u.getId()).y + imgSize.y / 2);
 
         //クリック時Activity移動動作
         final long id = u.getId();
@@ -221,8 +242,14 @@ public class HirobaActivity extends AppCompatActivity {
         lay.addView(name, tlp);
     }
 
+    private Point userPosition(long id){
+        Point userPosition = new Point();
+        userPosition.set(userPos.get(id).x * imgSize.x, userPos.get(id).y * imgSize.y);
+        return userPosition;
+    }
 
-    public static class screamSendDialog extends DialogFragment
+
+    public static class ScreamSendDialog extends DialogFragment
     {
         private EditText editText;
 
@@ -243,14 +270,25 @@ public class HirobaActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     //SendSwicher
-
+                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences((HirobaActivity)getActivity());
+                    long id = pref.getLong("USER_ID", 0);
+                    Switcher.sendData((HirobaActivity)getActivity(), new MyScream(id, editText.getText().toString(), System.currentTimeMillis()));
+//                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences((HirobaActivity)getActivity());
+//                    long id = pref.getLong("USER_ID", 0);
+//                    id = 1;
+//                    List<String> tags = new ArrayList<String>();
+//                    Switcher.sendData(
+//                            (HirobaActivity)getActivity(),
+//                            new MyUser(id, "name", null, "twitter", "comment", tags, System.currentTimeMillis()),
+//                            new MyScream(id, editText.getText().toString(), System.currentTimeMillis())
+//                    );
                 }
             });
             return builder.create();
         }
 
-        public static screamSendDialog newInstance(String value){
-            HirobaActivity.screamSendDialog dialog = new HirobaActivity.screamSendDialog();
+        public static ScreamSendDialog newInstance(String value){
+            ScreamSendDialog dialog = new ScreamSendDialog();
             Bundle args = new Bundle();
             args.putString("value", value);
             dialog.setArguments(args);
@@ -263,25 +301,67 @@ public class HirobaActivity extends AppCompatActivity {
             lay = (RelativeLayout)findViewById(R.id.hiroba);
             actSize = new Point();
             actSize.set(lay.getWidth(), lay.getHeight());
-            Update();
+            update();
         }catch(Exception e){
         }
     }
 
     //showScream method
-    private void showScream(String scream, MyUser user){
+    private void showScream(MyScream scream){
+        TextView screamView = new TextView(this);
+        //発信後 DispTime　以内のscreamを表示
+        long currentTime = System.currentTimeMillis();
+        long dispTime = 5000;
 
+        if(currentTime < scream.getTime() + dispTime){
+            Timer timer = new Timer();
+            TimerTask task = new TimerTask() {
+                @Override
+                public void run() {
+                    Intent timerIntent = new Intent(ACTION_TIMER_RECEIVED);
+                    sendBroadcast(timerIntent);
+                }
+            };
+
+            timer.schedule(task, dispTime);
+            RelativeLayout.LayoutParams lp =
+                    new  RelativeLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+            screamView.setBackgroundResource(android.R.drawable.editbox_dropdown_light_frame);
+            screamView.setTranslationX(userPosition(scream.getUserId()).x);
+            screamView.setTranslationY(userPosition(scream.getUserId()).y);
+            screamView.setText(  scream.getText());
+            lay.addView(screamView, lp);
+        }
     }
 
 
-    public class bReceiver extends BroadcastReceiver {
+    private class SwicherReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent){
             String action = intent.getAction();
-            if(action.equals(Switcher.ACTION_USER_RECEIVED)){
+            if(action.equals(Switcher.ACTION_DATA_RECEIVED)) {
+                userList = (ArrayList)MyUser.getAllMyUser((HirobaActivity)HirobaActivity.this);
+            }
+            if(action.equals(Switcher.ACTION_USER_RECEIVED)) {
                 userList = intent.getParcelableArrayListExtra("USER");
             }
-            Update();
+            if(action.equals(Switcher.ACTION_SCREAM_RECEIVED)){
+                screamList = intent.getParcelableArrayListExtra("SCREAM");
+            }
+            update();
+        }
+    }
+
+    private class TimerReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action.equals(ACTION_TIMER_RECEIVED)){
+                update();
+            }
         }
     }
 }

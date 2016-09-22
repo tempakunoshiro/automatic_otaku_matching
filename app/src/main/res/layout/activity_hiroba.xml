@@ -24,4 +24,13 @@
         android:src="@android:drawable/sym_def_app_icon"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/textView2"
+        android:layout_above="@+id/myImage"
+        android:layout_centerHorizontal="true"
+        android:background="@android:drawable/editbox_dropdown_light_frame" />
 </RelativeLayout>
