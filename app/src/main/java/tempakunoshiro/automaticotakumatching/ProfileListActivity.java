@@ -1,6 +1,5 @@
 package tempakunoshiro.automaticotakumatching;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -48,7 +47,7 @@ public class ProfileListActivity extends AppCompatActivity {
         for(String tag : profile.getTagList()) {
             tagStrBldr.append(" / #" + tag);
         }
-        tagsText.setText(tagStrBldr.substring(4));
+        tagsText.setText(tagStrBldr.toString().replaceFirst(" / ", ""));
 
         record.setOnClickListener(new View.OnClickListener() {
             private long id;
@@ -96,6 +95,12 @@ public class ProfileListActivity extends AppCompatActivity {
         IntentFilter iFilter = new IntentFilter();
         iFilter.addAction(Switcher.ACTION_USER_RECEIVED);
         registerReceiver(receiver, iFilter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(receiver);
+        super.onDestroy();
     }
 
     @Override
@@ -157,10 +162,8 @@ public class ProfileListActivity extends AppCompatActivity {
                 });
                 for(MyUser profile : userList) {
                     addRecord(profile, inflater);
-                    System.out.println(profile.getName());
                 }
             }
-            System.out.println("onReceive!");
         }
     }
 }
