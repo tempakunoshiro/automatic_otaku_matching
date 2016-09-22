@@ -38,11 +38,16 @@ public class MyIcon implements Parcelable {
         this.iconBytes = iconBytes;
     }
 
-    public MyIcon(long userId, Bitmap bmp){
+    public MyIcon(long userId, Bitmap icon){
         this.id = userId;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        icon.compress(Bitmap.CompressFormat.PNG, 100, baos);
         this.iconBytes = baos.toByteArray();
+    }
+
+    public MyIcon(long userId, byte[] iconBytes){
+        this.id = userId;
+        this.iconBytes = iconBytes;
     }
 
     @Nullable
@@ -60,7 +65,9 @@ public class MyIcon implements Parcelable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return icon==null ? null : icon.getIcon();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        return icon == null ? BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.otaku_icon) : icon.getIcon();
     }
 
     @Nullable
@@ -78,7 +85,10 @@ public class MyIcon implements Parcelable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return icon==null ? null : icon.getIconBytes();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.otaku_icon).compress(Bitmap.CompressFormat.PNG, 100, baos);
+        return icon == null ? baos.toByteArray() : icon.getIconBytes();
     }
 
 
@@ -110,12 +120,28 @@ public class MyIcon implements Parcelable {
         return id;
     }
 
+    public Bitmap getIcon() {
+        if(iconBytes == null){
+            return getDefaultIcon();
+        }
+        Bitmap bmp = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.length);
+        return bmp;
+    }
+
     public byte[] getIconBytes() {
+        if(iconBytes == null){
+            return getDefaultIconBytes();
+        }
         return iconBytes;
     }
 
-    public Bitmap getIcon() {
-        Bitmap bmp = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.length);
-        return bmp;
+    private byte[] getDefaultIconBytes(){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        getDefaultIcon().compress(Bitmap.CompressFormat.PNG, 100, baos);
+        return baos.toByteArray();
+    }
+
+    private Bitmap getDefaultIcon(){
+        return BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.otaku_icon);
     }
 }

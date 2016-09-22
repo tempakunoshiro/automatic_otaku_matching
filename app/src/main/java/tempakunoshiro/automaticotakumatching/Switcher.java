@@ -17,6 +17,7 @@ import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -83,27 +84,17 @@ public class Switcher extends IntentService {
                 }
 
                 // icon追加処理、やや処理重いので非同期注意（SQLアクセスは先にやっとけ）
-                Bitmap icon = user.getIcon();
+                byte[] iconBytes = user.getIconBytes();
                 Dao iconDao = dbHelper.getDao(MyIcon.class);
-                {
-                    QueryBuilder<MyIcon, Integer> queryBuilder = iconDao.queryBuilder();
-                    queryBuilder.where().eq("id", user.getId());
-                    List<MyIcon> icons = queryBuilder.query();
-                    if (icons.size() == 0 && icon != null) {
-                        iconDao.createOrUpdate(new MyIcon(user.getId(), icon));
-                    }
-                }
+                iconDao.createOrUpdate(new MyIcon(user.getId(), iconBytes));
             }
 
             // データ送信部分
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-            long id = user == null ? scream.getUserId() : user.getId() ;
+            long id = user == null ? scream.getUserId() : user.getId();
             // 自分のデータが来た→通信部に送信
             if(id == pref.getLong("USER_ID", -1L)){
-
-                if(user != null
-                        && user.getName().equals(getString(R.string.default_name))
-                        && user.getModifiedTime() == 0){
+                if(user != null && user.getModifiedTime() == 0 && user.getName().equals(getString(R.string.default_name))){
                     return;
                 }
 

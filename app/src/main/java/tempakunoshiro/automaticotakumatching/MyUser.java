@@ -1,6 +1,7 @@
 package tempakunoshiro.automaticotakumatching;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Parcel;
@@ -179,13 +180,16 @@ public class MyUser implements Parcelable, Serializable {
 
     public Bitmap getIcon() {
         if(iconBytes == null){
-            return null;
+            return getDefaultIcon();
         }
         Bitmap bmp = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.length);
         return bmp;
     }
 
     public byte[] getIconBytes() {
+        if(iconBytes == null){
+            return getDefaultIconBytes();
+        }
         return iconBytes;
     }
 
@@ -203,7 +207,7 @@ public class MyUser implements Parcelable, Serializable {
 
     public void setIcon(Bitmap iconBmp) {
         if(iconBmp == null){
-            this.iconBytes = null;
+            this.iconBytes = getDefaultIconBytes();
         }else{
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             iconBmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
@@ -212,7 +216,24 @@ public class MyUser implements Parcelable, Serializable {
     }
 
     public void setIconBytes(byte[] iconBytes) {
+        if(iconBytes == null){
+            this.iconBytes = getDefaultIconBytes();
+        }
         this.iconBytes = iconBytes;
+    }
+
+    private byte[] getDefaultIconBytes(){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        getDefaultIcon().compress(Bitmap.CompressFormat.PNG, 100, baos);
+        return baos.toByteArray();
+    }
+
+    private Bitmap getDefaultIcon(){
+        if("エモ=オタク".equals(name)){
+            return BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.emootaku_icon);
+        }else{
+            return BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.otaku_icon);
+        }
     }
 
     public void setTwitterId(String twitterId) {
