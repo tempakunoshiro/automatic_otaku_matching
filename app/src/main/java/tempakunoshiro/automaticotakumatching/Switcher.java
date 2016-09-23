@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.util.Base64;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.Dao.CreateOrUpdateStatus;
@@ -15,6 +17,10 @@ import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -155,6 +161,34 @@ public class Switcher extends IntentService {
         Intent intent = new Intent(context, Switcher.class);
         intent.putExtra("USER", (Parcelable) user);
         intent.putExtra("SCREAM", (Parcelable) scream);
+        context.startService(intent);
+    }
+
+    public static void sendData(Context context, String base64Str) {
+        Intent intent = new Intent(context, Switcher.class);
+
+        ObjectInputStream ois = null;
+        try {
+            ois = new ObjectInputStream(new ByteArrayInputStream(Base64.decode(base64Str, Base64.DEFAULT)));
+            MyData data = (MyData) ois.readObject();
+
+            intent.putExtra("USER", (Parcelable) data.getUser());
+            intent.putExtra("SCREAM", (Parcelable) data.getScream());
+            data.getUser().saveIconLocalStorage(context, BitmapFactory.decodeByteArray(data.getIconBytes(), 0, data.getIconBytes().length));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if(ois != null){
+                    ois.close();
+                }
+            } catch (IOException e2) {
+                e2.printStackTrace();
+            }
+        }
+
         context.startService(intent);
     }
 }
