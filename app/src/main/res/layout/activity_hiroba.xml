@@ -47,6 +47,14 @@
                 layout="@layout/hiroba_otaku_icon"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:id="@+id/include5"
+                android:layout_above="@+id/myIcon"
+                android:layout_toStartOf="@+id/myIcon" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:id="@+id/include2"
                 android:layout_centerVertical="true"
                 android:layout_toStartOf="@+id/include11" />
@@ -55,9 +63,26 @@
                 layout="@layout/hiroba_otaku_icon"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:layout_below="@+id/myIcon"
+                android:layout_toStartOf="@+id/myIcon"
+                android:id="@+id/include11" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:id="@+id/include8"
                 android:layout_below="@+id/include13"
                 android:layout_centerHorizontal="true" />
+
+            <include
+                layout="@layout/hiroba_otaku_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center|left"
+                android:layout_below="@+id/myIcon"
+                android:layout_toEndOf="@+id/myIcon"
+                android:id="@+id/include13" />
 
             <include
                 layout="@layout/hiroba_otaku_icon"
@@ -74,31 +99,6 @@
                 android:id="@+id/include4"
                 android:layout_below="@+id/include6"
                 android:layout_toEndOf="@+id/myIcon" />
-
-            <include
-                layout="@layout/hiroba_otaku_icon"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center|left"
-                android:layout_below="@+id/myIcon"
-                android:layout_toEndOf="@+id/myIcon"
-                android:id="@+id/include13" />
-
-            <include
-                layout="@layout/hiroba_otaku_icon"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_below="@+id/myIcon"
-                android:layout_toStartOf="@+id/myIcon"
-                android:id="@+id/include11" />
-
-            <include
-                layout="@layout/hiroba_otaku_icon"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:id="@+id/include5"
-                android:layout_above="@+id/myIcon"
-                android:layout_toStartOf="@+id/myIcon" />
 
             <include
                 layout="@layout/hiroba_otaku_icon"
