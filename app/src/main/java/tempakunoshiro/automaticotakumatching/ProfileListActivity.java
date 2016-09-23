@@ -48,7 +48,7 @@ public class ProfileListActivity extends AppCompatActivity {
             tagStrBldr.append(" / #" + tag);
         }
 
-        tagsText.setText(tagStrBldr.toString().replaceFirst(" / #", ""));
+        tagsText.setText(tagStrBldr.toString().replaceFirst(" / ", ""));
 
         record.setOnClickListener(new View.OnClickListener() {
             private long id;
