@@ -219,7 +219,7 @@ public class WifiDirectIntentService extends IntentService {
         WifiManager mManager = (WifiManager) getSystemService(WIFI_SERVICE);
         int wifiState = mManager.getWifiState();
         if(!(wifiState == WifiManager.WIFI_STATE_ENABLED || wifiState == WifiManager.WIFI_STATE_ENABLING)){
-
+            broadcastWifiIsDisabled();
         }
     }
 
