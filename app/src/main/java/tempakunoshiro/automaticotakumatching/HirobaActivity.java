@@ -110,6 +110,8 @@ public class HirobaActivity extends AppCompatActivity {
         screamTextId.add(R.id.comment11);
         screamTextId.add(R.id.comment12);
 
+        RandomDataSender.sendRandomData(this, 5000);
+
         userList = (ArrayList)MyUser.getAllMyUser(this);
         update();
     }
@@ -206,7 +208,7 @@ public class HirobaActivity extends AppCompatActivity {
                         MyUser.getMyUserById(this, iconUserMap.get(iconLayout.getId())).getModifiedTime() + dispTime < System.currentTimeMillis() )) {
                 ImageView icon = (ImageView) iconLayout.getChildAt(0);
                 TextView text = (TextView) iconLayout.getChildAt(1);
-                TextView scm = (TextView)iconLayout.getChildAt(2);
+                TextView scm = (TextView)findViewById(screamTextId.get(i));
                 scm.setVisibility(View.INVISIBLE);
                 iconLayout.setVisibility(View.INVISIBLE);
                 iconUserMap.remove(iconLayout.getId());
@@ -258,14 +260,14 @@ public class HirobaActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent){
             String action = intent.getAction();
             if(action.equals(Switcher.ACTION_DATA_RECEIVED)) {
-                userList = (ArrayList)MyUser.getAllMyUser((HirobaActivity)HirobaActivity.this);
-                screamList = (ArrayList)MyScream.getAllMyScream((HirobaActivity)HirobaActivity.this);
+                userList = (ArrayList)MyUser.getAllMyUser(HirobaActivity.this);
+                screamList = (ArrayList)MyScream.getAllMyScream(HirobaActivity.this);
             }
             if(action.equals(Switcher.ACTION_USER_RECEIVED)) {
-                userList = intent.getParcelableArrayListExtra("USER");
+                userList = (ArrayList)MyUser.getAllMyUser(HirobaActivity.this);
             }
             if(action.equals(Switcher.ACTION_SCREAM_RECEIVED)){
-                screamList = intent.getParcelableArrayListExtra("SCREAM");
+                screamList = (ArrayList)MyScream.getAllMyScream(HirobaActivity.this);
             }
             update();
         }
