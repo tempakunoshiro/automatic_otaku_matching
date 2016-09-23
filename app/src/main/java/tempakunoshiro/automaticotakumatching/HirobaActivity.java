@@ -26,6 +26,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,7 +66,7 @@ public class HirobaActivity extends AppCompatActivity {
 
 
         hirobaLayout = (RelativeLayout)findViewById(R.id.hiroba);
-        dispTime = 20000;
+        dispTime = 10000;
         userList = new ArrayList();
         screamList = new ArrayList();
         iconUserMap = new HashMap<Integer, Long>();
@@ -119,12 +121,41 @@ public class HirobaActivity extends AppCompatActivity {
         for(Object o: userList){
             dispUser((MyUser)o);
         }
+
+        for(Object o: screamList){
+            showScream((MyScream)o);
+        }
     }
 
     public void onScreamButtonTapped(View view) {
         String value = "";
         ScreamSendDialog dialog = ScreamSendDialog.newInstance(value);
         dialog.show(getFragmentManager(), "dialog");
+    }
+
+    private void showScream(MyScream scream){
+        for (int i = 0; i < getOtakuIconCount(); i++) {
+            RelativeLayout iconLayout = getOtakuIconAt(i);
+            if(iconUserMap.get(iconLayout.getId() ) == null) continue;
+            if(scream.getUserId() == iconUserMap.get(iconLayout.getId())) {
+                TextView text = (TextView) iconLayout.getChildAt(2);
+                if(scream.getTime() + dispTime > System.currentTimeMillis()) {
+                    TimerTask task = new TimerTask() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(ACTION_TIMER_RECEIVED);
+                            sendBroadcast(intent);
+                        }
+                    };
+                    Timer timer = new Timer();
+                    timer.schedule( task, dispTime);
+                    text.setText(scream.getText());
+                    text.setVisibility(View.VISIBLE);
+                }else{
+                    text.setVisibility(View.INVISIBLE);
+                }
+            }
+        }
     }
 
     private void dispUser(MyUser user) {
@@ -177,6 +208,8 @@ public class HirobaActivity extends AppCompatActivity {
                         MyUser.getMyUserById(this, iconUserMap.get(iconLayout.getId())).getModifiedTime() + dispTime < System.currentTimeMillis() )) {
                 ImageView icon = (ImageView) iconLayout.getChildAt(0);
                 TextView text = (TextView) iconLayout.getChildAt(1);
+                TextView scm = (TextView)iconLayout.getChildAt(2);
+                scm.setVisibility(View.INVISIBLE);
                 iconLayout.setVisibility(View.INVISIBLE);
                 iconUserMap.remove(iconLayout.getId());
             }
@@ -247,7 +280,7 @@ public class HirobaActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if(action.equals(ACTION_TIMER_RECEIVED)){
-                //update();
+                update();
             }
         }
     }
