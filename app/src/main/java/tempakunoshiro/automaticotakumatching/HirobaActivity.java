@@ -273,6 +273,12 @@ public class HirobaActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        unregisterReceiver(receiver);
+        super.onDestroy();
+    }
+
     private class TimerReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent) {
