@@ -24,7 +24,19 @@
         android:text="エモ=オタク"
         android:id="@+id/text"
         android:textAlignment="center"
-        android:textSize="9dp"
+        android:textSize="10dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="comment"
+        android:id="@+id/textView2"
+        android:layout_above="@+id/text"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="false"
+        android:background="@android:drawable/editbox_dropdown_light_frame"
+        android:visibility="invisible" />
 </RelativeLayout>
