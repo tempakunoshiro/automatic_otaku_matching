@@ -116,11 +116,11 @@ public class Switcher extends IntentService {
                     Intent userIntent = new Intent(ACTION_USER_RECEIVED);
                     List<MyUser> users = new ArrayList<>();
 
-                    for (MyUser u : allUsers) {
-                        u.setTagList(MyTag.getTagListById(this, u.getId()));
-                        users.add(u);
+                    long[] idArray = new long[allUsers.size()];
+                    for(int i = 0; i < allUsers.size(); i++){
+                        idArray[i] = allUsers.get(i).getId();
                     }
-                    userIntent.putParcelableArrayListExtra("USER", new ArrayList<>(users));
+                    userIntent.putExtra("USER", idArray);
                     sendBroadcast(userIntent);
                 }
 
@@ -129,7 +129,12 @@ public class Switcher extends IntentService {
                     Intent screamIntent = new Intent(ACTION_SCREAM_RECEIVED);
                     List<MyScream> screams = new ArrayList<>();
                     screams.addAll(allScreams);
-                    screamIntent.putParcelableArrayListExtra("SCREAM", new ArrayList<>(screams));
+
+                    long[] idArray = new long[allScreams.size()];
+                    for(int i = 0; i < allScreams.size(); i++){
+                        idArray[i] = allScreams.get(i).getId();
+                    }
+                    screamIntent.putExtra("SCREAM", idArray);
                     sendBroadcast(screamIntent);
                 }
 
