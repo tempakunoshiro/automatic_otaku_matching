@@ -22,13 +22,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -40,7 +36,6 @@ public class HirobaActivity extends AppCompatActivity {
     SwicherReceiver receiver;
     BroadcastReceiver timerReceiver;
     HashMap<Integer, Long> iconUserMap;
-    HashSet<MyUser> visibleUserSet;
 
     long dispTime;
     long myId;
@@ -57,14 +52,11 @@ public class HirobaActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = pref.edit();
         myId = pref.getLong("USER_ID", 0);
 
-
-
         hirobaLayout = (RelativeLayout)findViewById(R.id.hiroba);
         dispTime = 10000;
         userList = new ArrayList();
         screamList = new ArrayList();
         iconUserMap = new HashMap<Integer, Long>();
-
 
         receiver = new SwicherReceiver();
         IntentFilter iFilter = new IntentFilter();
@@ -93,7 +85,6 @@ public class HirobaActivity extends AppCompatActivity {
 
             Intent intent = new Intent(HirobaActivity.this, ProfileActivity.class);
             Bundle bundle = new Bundle();
-            System.out.println("myId:" + id);
             bundle.putLong("ID", id);
             intent.putExtras(bundle);
             startActivity(intent);
@@ -104,18 +95,14 @@ public class HirobaActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         userList = (ArrayList)MyUser.getAllMyUser(this);
-        //debug
-
         update();
     }
 
     private void update(){
         hideUser();
-
         for(Object o: userList){
             dispUser((MyUser)o);
         }
-
         for(Object o: screamList){
             showScream((MyScream)o);
         }
@@ -234,8 +221,6 @@ public class HirobaActivity extends AppCompatActivity {
                     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences((HirobaActivity)getActivity());
                     long id = pref.getLong("USER_ID", 0);
                     ArrayList<String> tags = new ArrayList<String>();
-                    //Switcher.sendData((HirobaActivity)getActivity(),
-                    //        new MyUser(1L, "abc", null, "twitter", "comment", tags, System.currentTimeMillis() ));
                     Switcher.sendData((HirobaActivity)getActivity(), new MyScream(id, editText.getText().toString(), System.currentTimeMillis()));
                 }
             });
@@ -318,7 +303,6 @@ public class HirobaActivity extends AppCompatActivity {
         });
         return true;
     }
-
 
     private RelativeLayout getOtakuIconAt(int index){
         return (RelativeLayout)hirobaLayout.getChildAt(index);

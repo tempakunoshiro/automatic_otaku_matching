@@ -282,18 +282,14 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        System.out.println("onPause start!");
         if(!getIcon().equals(profile.getIcon()) ||
            !getName().equals(profile.getName()) ||
            !getTwitter().equals(profile.getTwitterId()) ||
            !getComment().equals(profile.getComment()) ||
            !getTagList().equals(profile.getTagList())) {
             MyUser user = currentProfile();
-            System.out.println("書き込み開始");
             Switcher.sendData(this, user);
-            System.out.println("書き込み終了");
         }
-        System.out.println("ouPause end!");
     }
 
     private MyUser currentProfile() {
