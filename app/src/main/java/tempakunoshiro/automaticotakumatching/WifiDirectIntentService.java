@@ -3,89 +3,226 @@ package tempakunoshiro.automaticotakumatching;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.content.IntentFilter;
+import android.net.wifi.WpsInfo;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pInfo;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.util.Log;
 
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p>
- * TODO: Customize class - update intent actions, extra parameters and static
- * helper methods.
- */
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
+
 public class WifiDirectIntentService extends IntentService {
-    // TODO: Rename actions, choose action names that describe tasks that this
-    // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
-    private static final String ACTION_FOO = "tempakunoshiro.automaticotakumatching.action.FOO";
-    private static final String ACTION_BAZ = "tempakunoshiro.automaticotakumatching.action.BAZ";
+    public static final String TAG = "WIfiDirect";
+    public static final String EXTRA_WIFI_P2P_INFO = "tempakunoshiro.automaticotakumatching.extra.WIFI_P2P_INFO";
+    public static final String EXTRA_MODE = "tempakunoshiro.automaticotakumatching.extra.MODE";
 
-    // TODO: Rename parameters
-    private static final String EXTRA_PARAM1 = "tempakunoshiro.automaticotakumatching.extra.PARAM1";
-    private static final String EXTRA_PARAM2 = "tempakunoshiro.automaticotakumatching.extra.PARAM2";
+    //WifiがOFFになっていることを通知するアクション
+    public static final String ACTION_WIFI_DISABLED = "tempakunoshiro.automaticotakumatching.action.WIFI_DISABLED";
+
+    private static final int DELAY = 1000;
+    public static final String MODE_GROUP_OWNER = "Group Owner";
+    public static final String MODE_CLIENT = "Client";
+
+    private WifiP2pManager manager;
+    private WifiP2pManager.Channel channel;
+    private IntentFilter intentFilter = new IntentFilter();
+    private WifiDirectBroadcastReceiver receiver;
+
+
+    private static String mode = MODE_CLIENT;
+    private boolean isConnected = false;
+
+    private static List<Socket> socketList;
+
+    private static ServerSocket serverSocket = null;
+
+    //端末を探すハンドラ
+    private android.os.Handler requestPeersHandler = new android.os.Handler();
+    private Runnable requestPeersTask = new Runnable() {
+        @Override
+        public void run() {
+            manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
+                @Override
+                public void onSuccess() {
+                    Log.d(TAG, "Discovery Initiated");
+                }
+
+                @Override
+                public void onFailure(int reason) {
+                    Log.d(TAG, "Discovery Failed : " + reason);
+                }
+            });
+            requestPeersHandler.postDelayed(this, DELAY);
+        }
+    };
 
     public WifiDirectIntentService() {
         super("WifiDirectIntentService");
     }
 
     /**
-     * Starts this service to perform action Foo with the given parameters. If
-     * the service is already performing a task this action will be queued.
+     * 1回だけ呼び出してください
      *
-     * @see IntentService
      */
-    // TODO: Customize helper method
-    public static void startActionFoo(Context context, String param1, String param2) {
+    public static void startWifiDirect(Context context) {
         Intent intent = new Intent(context, WifiDirectIntentService.class);
-        intent.setAction(ACTION_FOO);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
         context.startService(intent);
     }
 
     /**
-     * Starts this service to perform action Baz with the given parameters. If
-     * the service is already performing a task this action will be queued.
-     *
-     * @see IntentService
+     * 一度だけする必要がある初期化処理
      */
-    // TODO: Customize helper method
-    public static void startActionBaz(Context context, String param1, String param2) {
-        Intent intent = new Intent(context, WifiDirectIntentService.class);
-        intent.setAction(ACTION_BAZ);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
-        context.startService(intent);
+    @Override
+    public void onCreate() {
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+
+        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        channel = manager.initialize(this, getMainLooper(), null);
+
+        receiver = new WifiDirectBroadcastReceiver(manager, channel, this);
+
+        socketList = Collections.synchronizedList(new ArrayList<Socket>());
+    }
+
+    //WifiがOFFであることをブロードキャストする
+    public void broadcastWifiIsDisabled(){
+        Intent intent = new Intent(ACTION_WIFI_DISABLED);
+        sendBroadcast(intent);
+    }
+
+    public void searchGroupOwner(WifiP2pDeviceList deviceList){
+        //接続済みなら接続しない
+        if(isConnected)return;
+
+        WifiP2pDevice defaultDevice = null;
+        for(WifiP2pDevice device : deviceList.getDeviceList()){
+            if(defaultDevice == null){
+                defaultDevice = device;
+            }
+
+            if(device.isGroupOwner()){
+                if(device.status != 3){
+                    if(defaultDevice.status != 3){
+                        Log.d(TAG, "default device is not available");
+                    }
+                    return;
+                }
+                //見つかった場合、はじめに見つかったものに対して接続する
+                Log.d(TAG, "Connecting : \n" + device.toString());
+                WifiP2pConfig config = new WifiP2pConfig();
+
+                config.deviceAddress = device.deviceAddress;
+                config.wps.setup = WpsInfo.PBC;
+
+                manager.connect(channel, config, new WifiP2pManager.ActionListener() {
+                    @Override
+                    public void onSuccess() {
+//                        Toast.makeText(getApplicationContext(), "Connection initiated", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Connection initiated");
+                    }
+
+                    @Override
+                    public void onFailure(int reason) {
+//                        Toast.makeText(getApplicationContext(), "Connection failed", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Connection failed : " + reason);
+                    }
+                });
+                return;
+            }else{
+
+            }
+        }
+        if(defaultDevice == null){
+            Log.d(TAG, "default device is null");
+            return;
+        }
+        Log.d(TAG, "Default device : \n" + defaultDevice.toString());
+        if(defaultDevice.status != 3){
+            Log.d(TAG, "default device is not available");
+            return;
+        }
+
+        WifiP2pConfig config = new WifiP2pConfig();
+
+        config.deviceAddress = defaultDevice.deviceAddress;
+        config.wps.setup = WpsInfo.PBC;
+
+        manager.connect(channel, config, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "Connection initiated");
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                Log.d(TAG, "Connection failed : " + reason);
+            }
+        });
+
+    }
+
+    public void notifyConnection(WifiP2pInfo info){
+        if(info.isGroupOwner){
+            mode = MODE_GROUP_OWNER;
+            Log.d(TAG, "This device is Group Owner");
+        }else{
+            Log.d(TAG, "This device is Client");
+        }
+
+        Intent intent = new Intent(this, ReceiveMessageIntentService.class);
+        intent.putExtra(EXTRA_WIFI_P2P_INFO, info);
+        startService(intent);
+
+    }
+
+    public boolean isConnected() {
+        return isConnected;
+    }
+    public void setConnected(boolean connected) {
+        isConnected = connected;
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent != null) {
-            final String action = intent.getAction();
-            if (ACTION_FOO.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionFoo(param1, param2);
-            } else if (ACTION_BAZ.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionBaz(param1, param2);
-            }
-        }
+        registerReceiver(receiver, intentFilter);
+        //端末の探索を1秒ごとに行う
+        requestPeersHandler.postDelayed(requestPeersTask, DELAY);
     }
 
-    /**
-     * Handle action Foo in the provided background thread with the provided
-     * parameters.
-     */
-    private void handleActionFoo(String param1, String param2) {
-        // TODO: Handle action Foo
-        throw new UnsupportedOperationException("Not yet implemented");
+    public static ServerSocket getServerSocket(){
+        return serverSocket;
     }
 
-    /**
-     * Handle action Baz in the provided background thread with the provided
-     * parameters.
-     */
-    private void handleActionBaz(String param1, String param2) {
-        // TODO: Handle action Baz
-        throw new UnsupportedOperationException("Not yet implemented");
+    public static void setServerSocket(ServerSocket serverSocket){
+        WifiDirectIntentService.serverSocket = serverSocket;
+    }
+
+    public static List<Socket> getSocketList(){
+        return socketList;
+    }
+
+    public static void addSocket(Socket socket){
+        socketList.add(socket);
+    }
+
+    public static String getMode(){
+        return mode;
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "Service Destroyed");
+        unregisterReceiver(receiver);
     }
 }

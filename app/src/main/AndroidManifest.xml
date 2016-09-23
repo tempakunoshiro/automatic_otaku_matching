@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="tempakunoshiro.automaticotakumatching" >
+    package="tempakunoshiro.automaticotakumatching">
 
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -9,19 +9,35 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
-        <activity android:name=".HirobaActivity" >
+        android:theme="@style/AppTheme">
+        <activity android:name=".HirobaActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ProfileActivity" ></activity>
-        <activity android:name=".ProfileListActivity" ></activity>
-        <service android:name=".Switcher" ></service>
-        <service android:name=".MatchingService" ></service>
-        <service android:name=".RandomDataSender" ></service>
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".ProfileListActivity" />
+
+        <service android:name=".Switcher" />
+        <service android:name=".MatchingService" />
+        <service android:name=".RandomDataSender" />
+        <service
+            android:name=".WifiDirectIntentService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".WifiDirectBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
+            android:name=".SendMessageIntentService"
+            android:exported="false" />
+        <service
+            android:name=".ReceiveMessageIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>
