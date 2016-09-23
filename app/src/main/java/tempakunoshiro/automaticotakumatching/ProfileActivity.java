@@ -330,24 +330,24 @@ public class ProfileActivity extends AppCompatActivity {
             editText.setSingleLine(true);
             editText.setText(getArguments().getString("value"));
 
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    ProfileActivity activity = (ProfileActivity) getActivity();
-                    activity.setName(editText.getText().toString());
-                }
-            });
-            return builder.create();
-        }
-
-        public static NameChangeDialog newInstance(String value){
-            NameChangeDialog dialog = new NameChangeDialog();
-            Bundle args = new Bundle();
-            args.putString("value", value);
-            dialog.setArguments(args);
-            return dialog;
-        }
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ProfileActivity activity = (ProfileActivity) getActivity();
+                activity.setName(editText.getText().toString());
+            }
+        });
+        return builder.create();
     }
+
+    public static NameChangeDialog newInstance(String value){
+        NameChangeDialog dialog = new NameChangeDialog();
+        Bundle args = new Bundle();
+        args.putString("value", value);
+        dialog.setArguments(args);
+        return dialog;
+    }
+}
     public static class TwitterChangeDialog extends DialogFragment {
         private EditText editText;
 
@@ -429,7 +429,7 @@ public class ProfileActivity extends AppCompatActivity {
             builder.setView(content);
             builder.setTitle(R.string.add_tag_text);
             editText.setSingleLine(true);
-            editText.setText(getArguments().getString("value"));
+            editText.setHint(getArguments().getString("value"));
 
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
