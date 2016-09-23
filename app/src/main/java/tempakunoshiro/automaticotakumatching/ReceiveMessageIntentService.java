@@ -92,6 +92,7 @@ public class ReceiveMessageIntentService extends IntentService {
                 //strをブロードキャストする
 
                 Intent messageIntent = new Intent();
+                messageIntent.setAction(ACTION_RECEIVE_MESSAGE);
                 messageIntent.putExtra(EXTRA_RECEIVED_MESSAGE, str);
                 sendBroadcast(messageIntent);
             }

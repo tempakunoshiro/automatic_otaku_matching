@@ -27,7 +27,8 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if(action == null)return;
-        if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
+        //そういえば「現在のWifiの有効/無効状態を取得」ではなく「有効/無効状態の変化を取得」なので不要だった
+/*        if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
                 // Wifi Direct is enabled
@@ -37,7 +38,8 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
                 // NG
                 service.broadcastWifiIsDisabled();
             }
-        }else if(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)){
+        }else*/
+        if(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)){
             if (manager != null) {
                 Log.d(WifiDirectIntentService.TAG, "Peers changed");
 

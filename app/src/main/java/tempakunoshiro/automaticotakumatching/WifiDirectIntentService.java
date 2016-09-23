@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -20,6 +21,22 @@ import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
+/**
+ * アプリの開始時にWifiDirectIntentService.startWifiDirectを一度だけ呼んでください
+ * 呼んだ時に端末のWifiの状態がOFFであれば、そのことがブロードキャストされます
+ * アクション：WifiDirectIntentService.ACTION_WIFI_DISABLED
+ * 特に値は設定されていません
+ *
+ * 何か受信した場合、ブロードキャストされます
+ *  アクション：ReceiveMessageIntentService.ACTION_RECEIVE_MESSAGE
+ *  名前：ReceiveMessageIntentService.EXTRA_RECEIVED_MESSAGE
+ *  String型で帰ってきます
+ *
+ * データを送信する場合、SendMessageIntentService.startSendAction(Context context, String Message)
+ *  を呼んでください
+ *
+ * デバッグ用のログが大量に流れます
+ */
 public class WifiDirectIntentService extends IntentService {
     public static final String TAG = "WIfiDirect";
     public static final String EXTRA_WIFI_P2P_INFO = "tempakunoshiro.automaticotakumatching.extra.WIFI_P2P_INFO";
@@ -83,7 +100,7 @@ public class WifiDirectIntentService extends IntentService {
      */
     @Override
     public void onCreate() {
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+//        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
 
@@ -198,6 +215,12 @@ public class WifiDirectIntentService extends IntentService {
         registerReceiver(receiver, intentFilter);
         //端末の探索を1秒ごとに行う
         requestPeersHandler.postDelayed(requestPeersTask, DELAY);
+
+        WifiManager mManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        int wifiState = mManager.getWifiState();
+        if(!(wifiState == WifiManager.WIFI_STATE_ENABLED || wifiState == WifiManager.WIFI_STATE_ENABLING)){
+
+        }
     }
 
     public static ServerSocket getServerSocket(){
