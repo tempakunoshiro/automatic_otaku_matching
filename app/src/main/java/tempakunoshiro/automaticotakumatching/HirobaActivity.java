@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class HirobaActivity extends AppCompatActivity {
 
@@ -87,7 +89,7 @@ public class HirobaActivity extends AppCompatActivity {
             String name = (String)getString(R.string.default_name);
             String twitter = (String)getString(R.string.default_twitter);
             String comment = (String)getString(R.string.default_comment);
-            Switcher.sendData(this, new MyUser(id, name, null, twitter, comment, tags, 0));
+            Switcher.sendData(this, new MyUser(id, name, twitter, comment, tags, 0));
 
             Intent intent = new Intent(HirobaActivity.this, ProfileActivity.class);
             Bundle bundle = new Bundle();

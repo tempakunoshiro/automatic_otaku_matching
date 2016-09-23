@@ -82,11 +82,6 @@ public class Switcher extends IntentService {
                     }
                     orderNum++;
                 }
-
-                // icon追加処理、やや処理重いので非同期注意（SQLアクセスは先にやっとけ）
-                byte[] iconBytes = user.getIconBytes();
-                Dao iconDao = dbHelper.getDao(MyIcon.class);
-                iconDao.createOrUpdate(new MyIcon(user.getId(), iconBytes));
             }
 
             // データ送信部分
@@ -100,7 +95,6 @@ public class Switcher extends IntentService {
 
                 Intent dataIntent = new Intent(ACTION_DATA_RECEIVED);
                 if(user != null){
-                    user.setIconBytes(MyIcon.getIconBytesById(this, id));
                     user.setTagList(MyTag.getTagListById(this, id));
                     dataIntent.putExtra("USER", (Parcelable) user);
                 }
@@ -117,7 +111,6 @@ public class Switcher extends IntentService {
                     List<MyUser> users = new ArrayList<>();
 
                     for (MyUser u : allUsers) {
-                        u.setIconBytes(MyIcon.getIconBytesById(this, u.getId()));
                         u.setTagList(MyTag.getTagListById(this, u.getId()));
                         users.add(u);
                     }

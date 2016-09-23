@@ -48,6 +48,8 @@ public class ProfileActivity extends AppCompatActivity {
         Bitmap resizedBitmap = resizeBitmap(bitmap);
         iconBitmap = resizedBitmap;
         iconImage.setImageBitmap(resizedBitmap);
+
+        profile.saveIconLocalStorage(this, iconBitmap);
     }
     private Bitmap getIcon() {
         return iconBitmap;
@@ -298,7 +300,6 @@ public class ProfileActivity extends AppCompatActivity {
         return new MyUser(
                 profile.getId(),
                 getName(),
-                getIcon(),
                 getTwitter(),
                 getComment(),
                 getTagList(),
