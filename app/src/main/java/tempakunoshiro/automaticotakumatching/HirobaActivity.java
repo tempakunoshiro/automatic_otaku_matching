@@ -9,28 +9,27 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Point;
 import android.os.Bundle;
-
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,195 +37,126 @@ public class HirobaActivity extends AppCompatActivity {
 
     ArrayList userList;
     ArrayList screamList;
-    RelativeLayout lay;
-    HashMap<Long, Point> userPos;
-    ArrayList<Long> imgUserList;
-    Point imgSize;
-    Point actSize;
     SwicherReceiver receiver;
     BroadcastReceiver timerReceiver;
+    HashMap<Integer, Long> iconUserMap;
+    HashSet<MyUser> visibleUserSet;
 
-    final int rows = 8;
-    final int cols = 12;
-    Long[][] idTable;
-    Long myId;
+    long dispTime;
+    long myId;
 
     private static final String ACTION_TIMER_RECEIVED = "tempakunoshiro.automaticotakumatching.ACTION_TIMER_RECEIVED";
-
-
+    private RelativeLayout hirobaLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_hiroba);
+
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = pref.edit();
-
         myId = pref.getLong("USER_ID", 0);
 
 
+
+        hirobaLayout = (RelativeLayout)findViewById(R.id.hiroba);
+        dispTime = 10000;
         userList = new ArrayList();
         screamList = new ArrayList();
-        imgUserList = new ArrayList<Long>();
-        userPos = new HashMap<Long, Point>();
-        imgSize = new Point();
-        idTable = new Long[rows][cols];
+        iconUserMap = new HashMap<Integer, Long>();
 
-        for(int i = 0; i < rows; i++){
-            for(int j = 0; j < cols; j++){
-                idTable[i][j] = new Long(0);
-            }
-        }
-
-        setContentView(R.layout.activity_hiroba);
 
         receiver = new SwicherReceiver();
         IntentFilter iFilter = new IntentFilter();
         iFilter.addAction(Switcher.ACTION_USER_RECEIVED);
         iFilter.addAction(Switcher.ACTION_SCREAM_RECEIVED);
         iFilter.addAction(Switcher.ACTION_DATA_RECEIVED);
-
         registerReceiver(receiver, iFilter);
 
         timerReceiver = new TimerReceiver();
         IntentFilter timerFilter = new IntentFilter();
         timerFilter.addAction(ACTION_TIMER_RECEIVED);
-
         registerReceiver(timerReceiver, timerFilter);
 
-
-
         if(myId == 0){
-
             Long udid = new BigInteger(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID), 16).longValue();
             long id = (((long) Math.ceil(Math.random()*Integer.MAX_VALUE)) << 32) + udid.hashCode();
             editor.putLong("USER_ID", id);
             editor.commit();
-
-            myId = new Long(id);
+            myId = id;
 
             List<String> tags = new ArrayList<String>();
-
             String name = (String)getString(R.string.default_name);
             String twitter = (String)getString(R.string.default_twitter);
             String comment = (String)getString(R.string.default_comment);
-
-            Switcher.sendData(this, new MyUser(id, name, null, twitter, comment, tags, 0));
-
+            Switcher.sendData(this, new MyUser(id, name, twitter, comment, tags, 0));
 
             Intent intent = new Intent(HirobaActivity.this, ProfileActivity.class);
             Bundle bundle = new Bundle();
             System.out.println("myId:" + id);
             bundle.putLong("ID", id);
             intent.putExtras(bundle);
-
-            userList = (ArrayList)MyUser.getAllMyUser(this);
-
             startActivity(intent);
         }
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         userList = (ArrayList)MyUser.getAllMyUser(this);
+        //debug
+
         update();
     }
 
+    private void update(){
+        hideUser();
 
-    public void update(){
-        lay = (RelativeLayout)findViewById(R.id.hiroba);
-        imgSize.set(lay.getWidth() / rows, lay.getHeight() / cols);
-        lay.removeAllViewsInLayout();
-
-        //画面サイズ取得
-        setScreamButton();
         for(Object o: userList){
-            setUser((MyUser)o);
+            dispUser((MyUser)o);
         }
 
         for(Object o: screamList){
             showScream((MyScream)o);
         }
-        //表示
-        //setContentView(lay);
     }
 
-    private void setScreamButton(){
-        FloatingActionButton fabutton = new FloatingActionButton(this);
-        RelativeLayout.LayoutParams lp =
-                new  RelativeLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                );
-        View.OnClickListener cl = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String value = "";
-                ScreamSendDialog dialog = ScreamSendDialog.newInstance(value);
-                dialog.show(getFragmentManager(), "dialog");
-            }
-        };
-
-        fabutton.setOnClickListener(cl);
-
-        lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-
-        lay.addView(fabutton, lp);
+    public void onScreamButtonTapped(View view) {
+        String value = "";
+        ScreamSendDialog dialog = ScreamSendDialog.newInstance(value);
+        dialog.show(getFragmentManager(), "dialog");
     }
 
-
-    //名前表示と画像表示を分けたいが時間がないので放置
-    private void setUser(MyUser u){
-
-        //ユーザ画面表示
-        ImageView img;
-        TextView name;
-        img = new ImageView(this);
-        name = new TextView(this);
-
-        RelativeLayout.LayoutParams tlp =
-                new  RelativeLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                       ViewGroup.LayoutParams.WRAP_CONTENT
-                );
-
-        //アイコン画像セット
-        img.setImageResource(android.R.drawable.sym_def_app_icon);
-        name.setText(u.getName());
-
-        //位置設定
-        int x = 0, y =0;
-        if(imgUserList.indexOf(u.getId()) == -1) {
-            if (u.getId() == myId) {
-                x = 3;
-                y = 5;
-            } else {
-                Random rnd = new Random();
-                //暫定処理　有限時間で終わらせます
-                while (true) {
-                    boolean posFlag = true;
-                    x = rnd.nextInt(rows - 1);
-                    y = rnd.nextInt(cols - 1);
-                    for (Map.Entry<Long, Point> e : userPos.entrySet()) {
-                        if (x == e.getValue().x && y == e.getValue().y) {
-                            posFlag = posFlag && false;
+    private void showScream(MyScream scream){
+        for (int i = 0; i < getOtakuIconCount(); i++) {
+            RelativeLayout iconLayout = getOtakuIconAt(i);
+            if(iconUserMap.get(iconLayout.getId() ) == null) continue;
+            if(scream.getUserId() == iconUserMap.get(iconLayout.getId())) {
+                TextView text = (TextView) iconLayout.getChildAt(2);
+                if(scream.getTime() + dispTime > System.currentTimeMillis()) {
+                    TimerTask task = new TimerTask() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(ACTION_TIMER_RECEIVED);
+                            sendBroadcast(intent);
                         }
-                    }
-                    if (posFlag) break;
+                    };
+                    Timer timer = new Timer();
+                    timer.schedule( task, dispTime);
+                    text.setText(scream.getText());
+                    text.setVisibility(View.VISIBLE);
+                }else{
+                    text.setVisibility(View.INVISIBLE);
                 }
             }
-            userPos.put(u.getId(), new Point(x, y));
-            imgUserList.add(u.getId());
         }
+    }
 
-        img.setTranslationX(userPosition(u.getId()).x);
-        img.setTranslationY(userPosition(u.getId()).y);
-        name.setTranslationX(userPosition(u.getId()).x);
-        name.setTranslationY(userPosition(u.getId()).y + imgSize.y / 2);
-
-        //クリック時Activity移動動作
-        final long id = u.getId();
+    private void dispUser(MyUser user) {
+        final long id = user.getId();
         View.OnClickListener cl = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent intent = new Intent(HirobaActivity.this, ProfileActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putLong("ID", id);
@@ -235,19 +165,50 @@ public class HirobaActivity extends AppCompatActivity {
             }
         };
 
-        img.setOnClickListener(cl);
-        name.setOnClickListener(cl);
-
-        lay.addView(img);
-        lay.addView(name, tlp);
+        if (user.getId() == myId) {
+            RelativeLayout iconLayout = (RelativeLayout)findViewById(R.id.myIcon);
+            ImageView icon = (ImageView) iconLayout.getChildAt(0);
+            TextView text = (TextView) iconLayout.getChildAt(1);
+            icon.setImageBitmap(user.getIcon());
+            text.setText(user.getName());
+            icon.setOnClickListener(cl);
+            text.setOnClickListener(cl);
+            iconUserMap.put(iconLayout.getId(), user.getId());
+        } else if(user.getModifiedTime() + dispTime >= System.currentTimeMillis()){
+            if(iconUserMap.containsValue(user.getId())) return;
+            for (int i = 0; i < getOtakuIconCount(); i++) {
+                RelativeLayout iconLayout = getOtakuIconAt(i);
+                if (iconUserMap.containsKey(iconLayout.getId())) continue;
+                ImageView icon = (ImageView) iconLayout.getChildAt(0);
+                TextView text = (TextView) iconLayout.getChildAt(1);
+                icon.setImageBitmap(user.getIcon());
+                text.setText(user.getName());
+                icon.setOnClickListener(cl);
+                text.setOnClickListener(cl);
+                iconLayout.setVisibility(View.VISIBLE);
+                iconUserMap.put(iconLayout.getId(), user.getId());
+                break;
+            }
+        }
     }
 
-    private Point userPosition(long id){
-        Point userPosition = new Point();
-        userPosition.set(userPos.get(id).x * imgSize.x, userPos.get(id).y * imgSize.y);
-        return userPosition;
-    }
 
+    private void hideUser(){
+        int n = getOtakuIconCount();
+        for(int i = 0; i < getOtakuIconCount(); i++){
+            RelativeLayout iconLayout = getOtakuIconAt(i);
+            if(iconLayout.getId() != R.id.myIcon &&
+                    (iconUserMap.get(iconLayout.getId()) == null ||
+                        MyUser.getMyUserById(this, iconUserMap.get(iconLayout.getId())).getModifiedTime() + dispTime < System.currentTimeMillis() )) {
+                ImageView icon = (ImageView) iconLayout.getChildAt(0);
+                TextView text = (TextView) iconLayout.getChildAt(1);
+                TextView scm = (TextView)iconLayout.getChildAt(2);
+                scm.setVisibility(View.INVISIBLE);
+                iconLayout.setVisibility(View.INVISIBLE);
+                iconUserMap.remove(iconLayout.getId());
+            }
+        }
+    }
 
     public static class ScreamSendDialog extends DialogFragment
     {
@@ -272,6 +233,9 @@ public class HirobaActivity extends AppCompatActivity {
                     //SendSwicher
                     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences((HirobaActivity)getActivity());
                     long id = pref.getLong("USER_ID", 0);
+                    ArrayList<String> tags = new ArrayList<String>();
+                    //Switcher.sendData((HirobaActivity)getActivity(),
+                    //        new MyUser(1L, "abc", null, "twitter", "comment", tags, System.currentTimeMillis() ));
                     Switcher.sendData((HirobaActivity)getActivity(), new MyScream(id, editText.getText().toString(), System.currentTimeMillis()));
                 }
             });
@@ -286,48 +250,6 @@ public class HirobaActivity extends AppCompatActivity {
             return dialog;
         }
     }
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        try {
-            lay = (RelativeLayout)findViewById(R.id.hiroba);
-            actSize = new Point();
-            actSize.set(lay.getWidth(), lay.getHeight());
-            update();
-        }catch(Exception e){
-        }
-    }
-
-    //showScream method
-    private void showScream(MyScream scream){
-        TextView screamView = new TextView(this);
-        //発信後 DispTime　以内のscreamを表示
-        long currentTime = System.currentTimeMillis();
-        long dispTime = 5000;
-
-        if(currentTime < scream.getTime() + dispTime){
-            Timer timer = new Timer();
-            TimerTask task = new TimerTask() {
-                @Override
-                public void run() {
-                    Intent timerIntent = new Intent(ACTION_TIMER_RECEIVED);
-                    sendBroadcast(timerIntent);
-                }
-            };
-
-            timer.schedule(task, dispTime);
-            RelativeLayout.LayoutParams lp =
-                    new  RelativeLayout.LayoutParams(
-                            ViewGroup.LayoutParams.WRAP_CONTENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT
-                    );
-            screamView.setBackgroundResource(android.R.drawable.editbox_dropdown_light_frame);
-            screamView.setTranslationX(userPosition(scream.getUserId()).x);
-            screamView.setTranslationY(userPosition(scream.getUserId()).y);
-            screamView.setText(  scream.getText());
-            lay.addView(screamView, lp);
-        }
-    }
-
 
     private class SwicherReceiver extends BroadcastReceiver {
         @Override
@@ -355,5 +277,54 @@ public class HirobaActivity extends AppCompatActivity {
                 update();
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuItem goHirobaItem = menu.add(R.string.go_hiroba_text);
+        goHirobaItem.setIcon(android.R.drawable.ic_menu_myplaces);
+        goHirobaItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        goHirobaItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(HirobaActivity.this, HirobaActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+        MenuItem goScreamListItem = menu.add(R.string.go_scream_list_text);
+        goScreamListItem.setIcon(android.R.drawable.ic_menu_agenda);
+        goScreamListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        //goScreamListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        //    @Override
+        //    public boolean onMenuItemClick(MenuItem item) {
+        //        Intent intent = new Intent(HirobaActivity.this, ScreamListActivity.class);
+        //        startActivity(intent);
+        //        return false;
+        //    }
+        //});
+
+        MenuItem goProfileListItem = menu.add(R.string.go_profile_list_text);
+        goProfileListItem.setIcon(android.R.drawable.ic_menu_my_calendar);
+        goProfileListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        goProfileListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(HirobaActivity.this, ProfileListActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+        return true;
+    }
+
+
+    private RelativeLayout getOtakuIconAt(int index){
+        return (RelativeLayout)hirobaLayout.getChildAt(index);
+    }
+
+    private int getOtakuIconCount(){
+        return hirobaLayout.getChildCount();
     }
 }

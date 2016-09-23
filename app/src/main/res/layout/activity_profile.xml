@@ -33,7 +33,6 @@
                     android:layout_height="130dp"
                     android:id="@+id/iconImage"
                     android:layout_gravity="center_horizontal"
-                    android:src="@drawable/otaku_icon"
                     android:scaleType="fitCenter" />
 
                 <TextView

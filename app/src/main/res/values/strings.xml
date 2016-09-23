@@ -9,8 +9,11 @@
     <string name="add_tag_text">新しいタグを追加</string>
     <string name="new_tag_text">新しいタグ</string>
     <string name="last_received">最終受信時刻</string>
-    <string name="send_scream_text">シャウトを送信</string>
+    <string name="send_scream_text">心の叫びを送信</string>
     <string name="default_name">君の名は．</string>
     <string name="default_twitter">twitter</string>
     <string name="default_comment">コメントを入力して下さい．</string>
+    <string name="go_hiroba_text">ひろばを開く</string>
+    <string name="go_scream_list_text">さけびリストを開く</string>
+    <string name="go_profile_list_text">プロフィールリストを開く</string>
 </resources>

@@ -1,6 +1,7 @@
 package tempakunoshiro.automaticotakumatching;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Parcel;
@@ -12,7 +13,14 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,7 +37,6 @@ public class MyUser implements Parcelable, Serializable {
     private long id;
     @DatabaseField(canBeNull = false)
     private String name;
-    private byte[] iconBytes;
     @DatabaseField(canBeNull = false)
     private String twitterId;
     @DatabaseField(canBeNull = false)
@@ -43,11 +50,6 @@ public class MyUser implements Parcelable, Serializable {
     protected MyUser(Parcel src) {
         this.id = src.readLong();
         this.name = src.readString();
-        int iconBytesLength = src.readInt();
-        if(iconBytesLength != 0){
-            this.iconBytes = new byte[iconBytesLength];
-            src.readByteArray(iconBytes);
-        }
         this.twitterId = src.readString();
         this.comment = src.readString();
         boolean[] isNullArray = new boolean[1];
@@ -62,19 +64,12 @@ public class MyUser implements Parcelable, Serializable {
        this.modifiedTime = src.readLong();
     }
 
-    public MyUser(long id, String name, Bitmap iconBmp, String twitterId, String comment, List<String> tags, long modifiedTime){
+    public MyUser(long id, String name, String twitterId, String comment, List<String> tags, long modifiedTime){
         if(id <= 0){
             throw new IllegalArgumentException("idは1以上にしてください");
         }
         this.id = id;
         this.name = name;
-        if(iconBmp == null){
-            this.iconBytes = null;
-        }else{
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            iconBmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
-            this.iconBytes = baos.toByteArray();
-        }
         this.twitterId = twitterId;
         this.comment = comment;
         this.tags = tags;
@@ -99,7 +94,6 @@ public class MyUser implements Parcelable, Serializable {
         if(user == null){
             return null;
         }
-        user.setIconBytes(MyIcon.getIconBytesById(context, userId));
         user.setTagList(MyTag.getTagListById(context, userId));
         return user;
     }
@@ -111,7 +105,6 @@ public class MyUser implements Parcelable, Serializable {
             Dao userDao = dbHelper.getDao(MyUser.class);
             List<MyUser> tempUsers = userDao.queryForAll();
             for(MyUser u : tempUsers){
-                u.setIconBytes(MyIcon.getIconBytesById(context, u.getId()));
                 u.setTagList(MyTag.getTagListById(context, u.getId()));
                 users.add(u);
             }
@@ -142,12 +135,6 @@ public class MyUser implements Parcelable, Serializable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(id);
         dest.writeString(name);
-        if(iconBytes == null){
-            dest.writeInt(0);
-        }else{
-            dest.writeInt(iconBytes.length);
-            dest.writeByteArray(iconBytes);
-        }
         dest.writeString(twitterId);
         dest.writeString(comment);
         if(tags == null){
@@ -159,6 +146,79 @@ public class MyUser implements Parcelable, Serializable {
             dest.writeStringList(new ArrayList<>(tags));
         }
         dest.writeLong(modifiedTime);
+    }
+
+    public boolean saveIconLocalStorage(Context context, Bitmap iconBmp) {
+        OutputStream os = null;
+        Bitmap tmpIcon = null;
+        try {
+            os = new BufferedOutputStream(context.openFileOutput(String.valueOf(id) + ".png", Context.MODE_PRIVATE));
+            tmpIcon = iconBmp.copy(Bitmap.Config.ARGB_8888, true);
+            return tmpIcon.compress(Bitmap.CompressFormat.PNG, 100, os);
+        } catch (IOException e) {
+        } finally {
+            if (tmpIcon != null) {
+                tmpIcon.recycle();
+            }
+            try {
+                if(os != null){
+                    os.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+        return false;
+    }
+
+    private byte[] loadIconBytesLocalStorage(Context context) {
+        InputStream is = null;
+        try {
+            if(!new File(context.getFilesDir().toURI().resolve(String.valueOf(id) + ".png")).exists()){
+                return getDefaultIconBytes();
+            }
+            is = new BufferedInputStream(context.openFileInput(String.valueOf(id) + ".png"));
+
+            byte[] b = new byte[1];
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            while (is.read(b) > 0) {
+                baos.write(b);
+            }
+            baos.close();
+
+            return baos.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if(is != null){
+                    is.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+        return getDefaultIconBytes();
+    }
+
+    private Bitmap loadIconLocalStorage(Context context) {
+        InputStream is = null;
+        try {
+            if(!new File(context.getFilesDir().toURI().resolve(String.valueOf(id) + ".png")).exists()){
+                return getDefaultIcon();
+            }
+            is = new BufferedInputStream(context.openFileInput(String.valueOf(id) + ".png"));
+
+            return BitmapFactory.decodeStream(is);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if(is != null){
+                    is.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+        return getDefaultIcon();
     }
 
     public long getId() {
@@ -178,14 +238,14 @@ public class MyUser implements Parcelable, Serializable {
     }
 
     public Bitmap getIcon() {
-        if(iconBytes == null){
-            return null;
-        }
-        Bitmap bmp = BitmapFactory.decodeByteArray(iconBytes, 0, iconBytes.length);
-        return bmp;
+        Bitmap iconBmp = null;
+        iconBmp = loadIconLocalStorage(MyApplication.getContext());
+        return iconBmp;
     }
 
     public byte[] getIconBytes() {
+        byte[] iconBytes = null;
+        iconBytes = loadIconBytesLocalStorage(MyApplication.getContext());
         return iconBytes;
     }
 
@@ -201,18 +261,18 @@ public class MyUser implements Parcelable, Serializable {
         this.name = name;
     }
 
-    public void setIcon(Bitmap iconBmp) {
-        if(iconBmp == null){
-            this.iconBytes = null;
-        }else{
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            iconBmp.compress(Bitmap.CompressFormat.PNG, 100, baos);
-            this.iconBytes = baos.toByteArray();
-        }
+    private byte[] getDefaultIconBytes(){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        getDefaultIcon().compress(Bitmap.CompressFormat.PNG, 100, baos);
+        return baos.toByteArray();
     }
 
-    public void setIconBytes(byte[] iconBytes) {
-        this.iconBytes = iconBytes;
+    private Bitmap getDefaultIcon(){
+        if("エモ=オタク".equals(name)){
+            return BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.emootaku_icon);
+        }else{
+            return BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.otaku_icon);
+        }
     }
 
     public void setTwitterId(String twitterId) {
@@ -236,7 +296,6 @@ public class MyUser implements Parcelable, Serializable {
         return "MyUser{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", iconBmp=" + iconBytes +
                 ", twitterId='" + twitterId + '\'' +
                 ", comment='" + comment + '\'' +
                 ", tags=" + tags +

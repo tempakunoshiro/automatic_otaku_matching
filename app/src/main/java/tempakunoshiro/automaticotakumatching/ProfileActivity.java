@@ -3,22 +3,30 @@ package tempakunoshiro.automaticotakumatching;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.FileDescriptor;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +34,26 @@ public class ProfileActivity extends AppCompatActivity {
     private MyUser profile;
     private boolean editableFlg = false;
     private ImageView iconImage;
+    private Bitmap iconBitmap;
     private TextView nameText;
     private TextView twitterText;
     private LinearLayout tagList;
     private TextView commentText;
     private LinearLayout addTagButton;
+    private final static int CHOOSE_IMAGE_CODE = 10000;
+    private final static int ICON_LONG_SIDE_LEN = 256;
 
     // アクセサ
+    private void setIcon(Bitmap bitmap) {
+        Bitmap resizedBitmap = resizeBitmap(bitmap);
+        iconBitmap = resizedBitmap;
+        iconImage.setImageBitmap(resizedBitmap);
+
+        profile.saveIconLocalStorage(this, iconBitmap);
+    }
+    private Bitmap getIcon() {
+        return iconBitmap;
+    }
     private void setName(String name) {
         nameText.setText(name);
     }
@@ -108,6 +129,9 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(1089);
+
         // 表示するプロフィールのオタクIDを取得
         Intent intent = getIntent();
         long id = intent.getLongExtra("ID", 0);
@@ -127,7 +151,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         // データベースからデータを取得し各Viewにセット
         profile = MyUser.getMyUserById(this, id);
-        //iconImage.setImageDrawable();
+        setIcon(profile.getIcon());
         setName(profile.getName());
         setTwitter(profile.getTwitterId());
         setComment(profile.getComment());
@@ -135,6 +159,14 @@ public class ProfileActivity extends AppCompatActivity {
 
         // 自分のプロフィールなら各フィールドを編集可能に
         if (editableFlg) {
+            iconImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("image/*");
+                    startActivityForResult(intent, CHOOSE_IMAGE_CODE);
+                }
+            });
             nameText.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -172,25 +204,107 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuItem goHirobaItem = menu.add(R.string.go_hiroba_text);
+        goHirobaItem.setIcon(android.R.drawable.ic_menu_myplaces);
+        goHirobaItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        goHirobaItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(ProfileActivity.this, HirobaActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+        MenuItem goScreamListItem = menu.add(R.string.go_scream_list_text);
+        goScreamListItem.setIcon(android.R.drawable.ic_menu_agenda);
+        goScreamListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        //goScreamListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+        //    @Override
+        //    public boolean onMenuItemClick(MenuItem item) {
+        //        Intent intent = new Intent(ProfileActivity.this, ScreamListActivity.class);
+        //        startActivity(intent);
+        //        return false;
+        //    }
+        //});
+
+        MenuItem goProfileListItem = menu.add(R.string.go_profile_list_text);
+        goProfileListItem.setIcon(android.R.drawable.ic_menu_my_calendar);
+        goProfileListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        goProfileListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(ProfileActivity.this, ProfileListActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+        return true;
+    }
+
+    protected Bitmap resizeBitmap(Bitmap original) {
+        if (original.getWidth() < original.getHeight()) {
+            return Bitmap.createScaledBitmap(
+                original,
+                ICON_LONG_SIDE_LEN * original.getWidth() / original.getHeight(),
+                ICON_LONG_SIDE_LEN,
+                false
+            );
+        } else {
+            return Bitmap.createScaledBitmap(
+                original,
+                ICON_LONG_SIDE_LEN,
+                ICON_LONG_SIDE_LEN * original.getHeight() / original.getWidth(),
+                false
+            );
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CHOOSE_IMAGE_CODE && resultCode == RESULT_OK) {
+            try {
+                Uri uri = data.getData();
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContentResolver().openFileDescriptor(uri, "r");
+                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+                parcelFileDescriptor.close();
+                setIcon(image);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
-
-        // TODO: アイコン変更対応
-        if(!profile.getName().equals(getName()) ||
-           !profile.getTwitterId().equals(getTwitter()) ||
-           !profile.getComment().equals(getComment()) ||
-           !profile.getTagList().equals(getTagList())) {
-            MyUser user = new MyUser(
-                    profile.getId(),
-                    getName(),
-                    null,
-                    getTwitter(),
-                    getComment(),
-                    getTagList(),
-                    System.currentTimeMillis()
-            );
+        System.out.println("onPause start!");
+        if(!getIcon().equals(profile.getIcon()) ||
+           !getName().equals(profile.getName()) ||
+           !getTwitter().equals(profile.getTwitterId()) ||
+           !getComment().equals(profile.getComment()) ||
+           !getTagList().equals(profile.getTagList())) {
+            MyUser user = currentProfile();
+            System.out.println("書き込み開始");
             Switcher.sendData(this, user);
+            System.out.println("書き込み終了");
         }
+        System.out.println("ouPause end!");
+    }
+
+    private MyUser currentProfile() {
+        return new MyUser(
+                profile.getId(),
+                getName(),
+                getTwitter(),
+                getComment(),
+                getTagList(),
+                System.currentTimeMillis()
+        );
     }
 
     public void onTwitterButtonTapped(View view) {
@@ -217,24 +331,24 @@ public class ProfileActivity extends AppCompatActivity {
             editText.setSingleLine(true);
             editText.setText(getArguments().getString("value"));
 
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    ProfileActivity activity = (ProfileActivity) getActivity();
-                    activity.setName(editText.getText().toString());
-                }
-            });
-            return builder.create();
-        }
-
-        public static NameChangeDialog newInstance(String value){
-            NameChangeDialog dialog = new NameChangeDialog();
-            Bundle args = new Bundle();
-            args.putString("value", value);
-            dialog.setArguments(args);
-            return dialog;
-        }
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ProfileActivity activity = (ProfileActivity) getActivity();
+                activity.setName(editText.getText().toString());
+            }
+        });
+        return builder.create();
     }
+
+    public static NameChangeDialog newInstance(String value){
+        NameChangeDialog dialog = new NameChangeDialog();
+        Bundle args = new Bundle();
+        args.putString("value", value);
+        dialog.setArguments(args);
+        return dialog;
+    }
+}
     public static class TwitterChangeDialog extends DialogFragment {
         private EditText editText;
 
@@ -316,7 +430,7 @@ public class ProfileActivity extends AppCompatActivity {
             builder.setView(content);
             builder.setTitle(R.string.add_tag_text);
             editText.setSingleLine(true);
-            editText.setText(getArguments().getString("value"));
+            editText.setHint(getArguments().getString("value"));
 
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override

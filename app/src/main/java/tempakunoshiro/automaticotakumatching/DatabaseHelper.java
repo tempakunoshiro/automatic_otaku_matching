@@ -38,7 +38,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, MyScream.class);
             TableUtils.createTable(connectionSource, MyTag.class);
             TableUtils.createTable(connectionSource, MyTagger.class);
-            TableUtils.createTable(connectionSource, MyIcon.class);
         } catch (SQLException e) {
             Log.e(DatabaseHelper.class.getName(), "データベースの作成エラー", e);
         }
@@ -51,7 +50,6 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.dropTable(connectionSource, MyScream.class, true);
             TableUtils.dropTable(connectionSource, MyTag.class, true);
             TableUtils.dropTable(connectionSource, MyTagger.class, true);
-            TableUtils.dropTable(connectionSource, MyIcon.class, true);
         } catch (SQLException e) {
             Log.e(DatabaseHelper.class.getName(), "データベースの更新エラー", e);
         }
@@ -64,12 +62,10 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.dropTable(getConnectionSource(), MyScream.class, true);
             TableUtils.dropTable(getConnectionSource(), MyTag.class, true);
             TableUtils.dropTable(getConnectionSource(), MyTagger.class, true);
-            TableUtils.dropTable(getConnectionSource(), MyIcon.class, true);
             TableUtils.createTable(getConnectionSource(), MyUser.class);
             TableUtils.createTable(getConnectionSource(), MyScream.class);
             TableUtils.createTable(getConnectionSource(), MyTag.class);
             TableUtils.createTable(getConnectionSource(), MyTagger.class);
-            TableUtils.createTable(getConnectionSource(), MyIcon.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }

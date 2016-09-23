@@ -29,7 +29,7 @@ public class RandomDataSender extends IntentService {
                 Collections.shuffle(tags);
                 Faker faker = new Faker(Locale.JAPAN);
                 long id =(long) Math.ceil(Math.random() * Long.MAX_VALUE);
-                MyUser u = new MyUser(id, faker.name().lastName() + faker.name().firstName(), null, "twitter", "Comment", Arrays.asList(tags.get(0)), System.currentTimeMillis());
+                MyUser u = new MyUser(id, faker.name().lastName() + faker.name().firstName(), "twitter", "Comment", Arrays.asList(tags.get(0)), System.currentTimeMillis());
                 MyScream s = new MyScream(id, "叫びだよ～", System.currentTimeMillis());
                 Switcher.sendData(this, u, s);
                 Thread.sleep(interval);
