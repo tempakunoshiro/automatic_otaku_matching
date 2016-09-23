@@ -33,9 +33,10 @@ public class HirobaActivity extends AppCompatActivity {
 
     ArrayList userList;
     ArrayList screamList;
-    SwicherReceiver receiver;
+    SwitcherReceiver receiver;
     BroadcastReceiver timerReceiver;
     HashMap<Integer, Long> iconUserMap;
+    ArrayList<Integer> screamTextId;
 
     long dispTime;
     long myId;
@@ -57,8 +58,9 @@ public class HirobaActivity extends AppCompatActivity {
         userList = new ArrayList();
         screamList = new ArrayList();
         iconUserMap = new HashMap<Integer, Long>();
+        screamTextId = new ArrayList<Integer>();
 
-        receiver = new SwicherReceiver();
+        receiver = new SwitcherReceiver();
         IntentFilter iFilter = new IntentFilter();
         iFilter.addAction(Switcher.ACTION_USER_RECEIVED);
         iFilter.addAction(Switcher.ACTION_SCREAM_RECEIVED);
@@ -94,6 +96,20 @@ public class HirobaActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        screamTextId.add(R.id.comment0);
+        screamTextId.add(R.id.comment1);
+        screamTextId.add(R.id.comment2);
+        screamTextId.add(R.id.comment3);
+        screamTextId.add(R.id.comment4);
+        screamTextId.add(R.id.comment5);
+        screamTextId.add(R.id.comment6);
+        screamTextId.add(R.id.comment7);
+        screamTextId.add(R.id.comment8);
+        screamTextId.add(R.id.comment9);
+        screamTextId.add(R.id.comment10);
+        screamTextId.add(R.id.comment11);
+        screamTextId.add(R.id.comment12);
+
         userList = (ArrayList)MyUser.getAllMyUser(this);
         update();
     }
@@ -119,7 +135,8 @@ public class HirobaActivity extends AppCompatActivity {
             RelativeLayout iconLayout = getOtakuIconAt(i);
             if(iconUserMap.get(iconLayout.getId() ) == null) continue;
             if(scream.getUserId() == iconUserMap.get(iconLayout.getId())) {
-                TextView text = (TextView) iconLayout.getChildAt(2);
+                TextView text = (TextView)findViewById(screamTextId.get(i));
+
                 if(scream.getTime() + dispTime > System.currentTimeMillis()) {
                     TimerTask task = new TimerTask() {
                         @Override
@@ -236,7 +253,7 @@ public class HirobaActivity extends AppCompatActivity {
         }
     }
 
-    private class SwicherReceiver extends BroadcastReceiver {
+    private class SwitcherReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent){
             String action = intent.getAction();
@@ -309,6 +326,6 @@ public class HirobaActivity extends AppCompatActivity {
     }
 
     private int getOtakuIconCount(){
-        return hirobaLayout.getChildCount();
+        return hirobaLayout.getChildCount() / 2;
     }
 }
