@@ -38,8 +38,8 @@ public class SendMessageIntentService extends IntentService {
             if (mode.equals(WifiDirectManager.MODE_CLIENT)) {
                 Log.d(TAG, "Send : client mode");
                 Log.d(TAG, "socket : " + Arrays.toString(socketList.toArray(new Socket[]{})));
-                message = "#" + message;
                 //クライアント時
+                message = "$" + message + "$";
                 for(Socket socket : socketList){
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                     Log.d(TAG, "Sent : " + message);
@@ -50,6 +50,7 @@ public class SendMessageIntentService extends IntentService {
                 Log.d(TAG, "Send : server mode");
                 Log.d(TAG, "socket : " + Arrays.toString(socketList.toArray(new Socket[]{})));
                 //サーバ時
+                message = "#" + message + "$";
                 for(Socket socket : socketList){
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                     Log.d(TAG, "Sent : " + message);
