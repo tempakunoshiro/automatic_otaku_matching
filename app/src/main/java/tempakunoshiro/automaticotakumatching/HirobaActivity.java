@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.os.Handler;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -35,6 +36,8 @@ public class HirobaActivity extends OtakuActivity {
     BroadcastReceiver timerReceiver;
     HashMap<Integer, Long> iconUserMap;
     ArrayList<Integer> screamTextId;
+    Handler handler;
+    Runnable sendTimerReceived;
 
     long dispTime;
     long myId;
@@ -59,6 +62,14 @@ public class HirobaActivity extends OtakuActivity {
         screamList = new ArrayList();
         iconUserMap = new HashMap<Integer, Long>();
         screamTextId = new ArrayList<Integer>();
+        handler = new Handler();
+        sendTimerReceived = new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(ACTION_TIMER_RECEIVED);
+                sendBroadcast(intent);
+            }
+        };
 
         receiver = new SwitcherReceiver();
         IntentFilter iFilter = new IntentFilter();
@@ -112,7 +123,7 @@ public class HirobaActivity extends OtakuActivity {
         screamTextId.add(R.id.comment11);
         screamTextId.add(R.id.comment12);
 
-        RandomDataSender.sendRandomData(this, 5000);
+        //RandomDataSender.sendRandomData(this, 5000);
 
         userList = (ArrayList)MyUser.getAllMyUser(this);
         update();
@@ -142,15 +153,7 @@ public class HirobaActivity extends OtakuActivity {
                 TextView text = (TextView)findViewById(screamTextId.get(i));
 
                 if(scream.getTime() + dispTime > System.currentTimeMillis()) {
-                    TimerTask task = new TimerTask() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(ACTION_TIMER_RECEIVED);
-                            sendBroadcast(intent);
-                        }
-                    };
-                    Timer timer = new Timer();
-                    timer.schedule( task, dispTime);
+                    handler.postDelayed(sendTimerReceived, dispTime);
                     text.setText(scream.getText());
                     text.setVisibility(View.VISIBLE);
                 }else{
