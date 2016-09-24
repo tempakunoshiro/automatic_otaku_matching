@@ -156,7 +156,10 @@ public class ProfileListActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent){
             String action = intent.getAction();
             if(action.equals(Switcher.ACTION_USER_RECEIVED)) {
-                ArrayList<MyUser> userList = intent.getParcelableArrayListExtra("USER");
+                ArrayList<MyUser> userList = new ArrayList<>();
+                for(long userId : intent.getLongArrayExtra("USER")) {
+                    userList.add(MyUser.getMyUserById(ProfileListActivity.this, userId));
+                }
                 Collections.sort(userList, new Comparator<MyUser>() {
                     public int compare(MyUser prf1, MyUser prf2) {
                         return (int) (prf2.getModifiedTime() - prf1.getModifiedTime());

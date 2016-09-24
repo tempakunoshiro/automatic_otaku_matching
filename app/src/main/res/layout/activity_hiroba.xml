@@ -7,7 +7,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="tempakunoshiro.automaticotakumatching.HirobaActivity">
+    tools:context="tempakunoshiro.automaticotakumatching.HirobaActivity"
+    >
 
     <!--<TextView-->
     <!--android:layout_width="wrap_content"-->
@@ -33,7 +34,7 @@
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true"
                 android:id="@+id/myIcon"
-                 ></include>
+                 />
 
             <include
                 layout="@layout/hiroba_otaku_icon"
@@ -132,6 +133,162 @@
                 android:layout_alignBottom="@+id/include8"
                 android:layout_toEndOf="@+id/include13"
                 />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="12dp"
+                android:id="@+id/comment0"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/myIcon"
+                android:layout_alignStart="@+id/myIcon"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="10dp"
+                android:id="@+id/comment1"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/include3"
+                android:layout_alignStart="@+id/include3"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="10dp"
+                android:id="@+id/comment2"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/include5"
+                android:layout_alignStart="@+id/include5"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="10dp"
+                android:id="@+id/comment3"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/include2"
+                android:layout_alignStart="@+id/include2"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="10dp"
+                android:id="@+id/comment4"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/include11"
+                android:layout_alignStart="@+id/include11"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="10dp"
+                android:id="@+id/comment5"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/include8"
+                android:layout_alignStart="@+id/include8"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="10dp"
+                android:id="@+id/comment6"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/include13"
+                android:layout_alignStart="@+id/include13"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="10dp"
+                android:id="@+id/comment7"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/include7"
+                android:layout_alignStart="@+id/include7"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="10dp"
+                android:id="@+id/comment8"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/include4"
+                android:layout_alignStart="@+id/include4"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="10dp"
+                android:id="@+id/comment9"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/include6"
+                android:layout_alignStart="@+id/include6"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="10dp"
+                android:id="@+id/comment10"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/include9"
+                android:layout_alignStart="@+id/include9"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="10dp"
+                android:id="@+id/comment11"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/include10"
+                android:layout_alignStart="@+id/include10"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textSize="10dp"
+                android:id="@+id/comment12"
+                android:background="@android:drawable/editbox_dropdown_light_frame"
+                android:layout_alignTop="@+id/include12"
+                android:layout_alignStart="@+id/include12"
+                android:visibility="invisible"/>
 
         </RelativeLayout>
 
