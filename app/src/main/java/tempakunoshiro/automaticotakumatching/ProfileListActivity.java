@@ -99,7 +99,7 @@ public class ProfileListActivity extends OtakuActivity {
         // データベース上のユーザ全てを表示
         List<MyUser> allUsers = MyUser.getAllMyUser(this);
         Collections.sort(allUsers, new UserModifiedTimeComparator());
-        for(MyUser profile : allUsers.subList(0, Math.min(MAX_PROFILES - 1, allUsers.size() - 1))) {
+        for(MyUser profile : allUsers.subList(0, Math.min(MAX_PROFILES - 1, allUsers.size()))) {
             addRecord(profile, inflater);
         }
 
