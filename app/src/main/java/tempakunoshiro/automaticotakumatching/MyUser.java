@@ -117,6 +117,25 @@ public class MyUser implements Parcelable, Serializable {
         return users;
     }
 
+    @Nullable
+    public static List<MyUser> getAllMyUserWithinTime(Context context, long time) {
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance(context);
+        List<MyUser> users = new ArrayList<>();
+        try {
+            Dao userDao = dbHelper.getDao(MyUser.class);
+            QueryBuilder<MyUser, Integer> queryBuilder = userDao.queryBuilder();
+            queryBuilder.where().ge("modifiedTime", time);
+            List<MyUser> tempUsers = queryBuilder.query();
+            for(MyUser u : tempUsers){
+                u.setTagList(MyTag.getTagListById(context, u.getId()));
+                users.add(u);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
     public static final Creator<MyUser> CREATOR = new Creator<MyUser>() {
         @Override
         public MyUser createFromParcel(Parcel in) {

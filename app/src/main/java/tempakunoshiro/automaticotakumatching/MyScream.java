@@ -78,6 +78,20 @@ public class MyScream implements Parcelable, Serializable {
         return Collections.emptyList();
     }
 
+    @Nullable
+    public static List<MyScream> getAllMyScreamWithinTime(Context context, long time) {
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance(context);
+        try {
+            Dao screamDao = dbHelper.getDao(MyScream.class);
+            QueryBuilder<MyScream, Integer> queryBuilder = screamDao.queryBuilder();
+            queryBuilder.where().ge("time", time);
+            return queryBuilder.query();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return Collections.emptyList();
+    }
+
     @Override
     public int describeContents() {
         return 0;
