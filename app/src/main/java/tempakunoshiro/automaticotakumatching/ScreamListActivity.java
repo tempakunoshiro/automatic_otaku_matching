@@ -99,16 +99,14 @@ public class ScreamListActivity extends OtakuActivity {
 
             @Override
             public void onRefresh() {
-                long currentTime = currentTimeMillis();
-                // MyScream.getAllMyScreamWithinTimeメソッドに
-                // 時間の終点が指定できないと，
-                // Screamの取り残し or 重複が発生する恐れがある
                 List<MyScream> screams = MyScream.getAllMyScreamWithinTime(ScreamListActivity.this, lastRefreshedTime + 1);
                 Collections.sort(screams, comparator);
                 for (MyScream scream : screams) {
                     addRecord(scream, inflater);
                 }
-                lastRefreshedTime = currentTime;
+                if (0 < screams.size()) {
+                    lastRefreshedTime = screams.get(screams.size() - 1).getTime();
+                }
                 swipeLayout.setRefreshing(false);
             }
 
