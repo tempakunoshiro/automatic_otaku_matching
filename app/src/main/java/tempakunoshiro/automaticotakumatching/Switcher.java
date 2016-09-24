@@ -179,10 +179,13 @@ public class Switcher extends IntentService {
         try {
             ois = new ObjectInputStream(new ByteArrayInputStream(Base64.decode(base64Str, Base64.DEFAULT)));
             MyData data = (MyData) ois.readObject();
+            if(data.getUser() == null){
+                return;
+            }
             intent.putExtra("USER", (Parcelable) data.getUser());
             intent.putExtra("SCREAM", (Parcelable) data.getScream());
             if(data.getIconBytes() == null){
-                File iconFile = new File(context.getFilesDir().toURI().resolve(String.valueOf(data.getUser().getId()) + ".png"));
+                File iconFile = new File(data.getUser().getIconUri().toString());
                 if(iconFile.exists()){
                     iconFile.delete();
                 }

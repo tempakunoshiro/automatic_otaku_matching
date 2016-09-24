@@ -18,6 +18,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +47,12 @@ public class ScreamListActivity extends OtakuActivity {
 
         // レコードに叫び情報を格納
         MyUser user = MyUser.getMyUserById(this, scream.getUserId());
-        iconImage.setImageBitmap(user.getIcon());
+        if(MyIcon.OTAKU_URI.equals(user.getIconUri())){
+            Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.otaku_icon).into(iconImage);
+        }else{
+            File iconFile = new File(user.getIconUri().toString());
+            Picasso.with(this).load(iconFile).placeholder(R.drawable.otaku_icon).into(iconImage);
+        }
         postedTimeText.setText(dateFormat.format(scream.getTime()));
         nameText.setText(user.getName());
         screamText.setText(scream.getText());
@@ -91,7 +99,7 @@ public class ScreamListActivity extends OtakuActivity {
 
 
     public void onScreamButtonTapped(View view) {
-        HirobaActivity.ScreamSendDialog dialog = new HirobaActivity.ScreamSendDialog();
+        ScreamSendDialog dialog = new ScreamSendDialog();
         dialog.show(getFragmentManager(), "dialog");
     }
 

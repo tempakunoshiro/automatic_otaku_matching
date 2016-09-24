@@ -18,6 +18,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +48,12 @@ public class ProfileListActivity extends OtakuActivity {
         TextView tagsText = (TextView) infoLinear.getChildAt(2);
 
         // レコードにユーザ情報を格納
-        iconImage.setImageBitmap(profile.getIcon());
+        if(MyIcon.OTAKU_URI.equals(profile.getIconUri())){
+            Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.otaku_icon).into(iconImage);
+        }else{
+            File iconFile = new File(profile.getIconUri().toString());
+            Picasso.with(this).load(iconFile).placeholder(R.drawable.otaku_icon).into(iconImage);
+        }
         modifiedTimeText.setText(dateFormat.format(profile.getModifiedTime()));
         nameText.setText(profile.getName());
         StringBuilder tagStrBldr = new StringBuilder();

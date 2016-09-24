@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
@@ -22,9 +24,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +40,7 @@ public class ProfileActivity extends OtakuActivity {
     private MyUser profile;
     private boolean editableFlg = false;
     private ImageView iconImage;
-    private Bitmap iconBitmap;
+    private Uri iconUri;
     private TextView nameText;
     private TextView twitterText;
     private LinearLayout tagList;
@@ -44,29 +50,25 @@ public class ProfileActivity extends OtakuActivity {
     private final static int ICON_LONG_SIDE_LEN = 256;
 
     // アクセサ
-    private void setIcon(Bitmap bitmap) {
-        if(bitmap == null){
-            iconBitmap = MyApplication.getOtakuIcon();
-            File iconFile = new File(getFilesDir().toURI().resolve(String.valueOf(profile.getId()) + ".png"));
-            if (iconFile.exists()) {
-                iconFile.delete();
+    private void setIconUri(Uri uri) {
+        if(MyIcon.OTAKU_URI.equals(uri)){
+            iconUri = MyIcon.OTAKU_URI;
+            File profileIconFile = new File(profile.getIconUri().toString());
+            if (profileIconFile.exists()) {
+                profileIconFile.delete();
             }
-        } else if(MyApplication.getOtakuIcon().equals(bitmap) || MyApplication.getEmootakuIcon().equals(bitmap)) {
-            iconBitmap = bitmap;
-            File iconFile = new File(getFilesDir().toURI().resolve(String.valueOf(profile.getId()) + ".png"));
-            if (iconFile.exists()) {
-                iconFile.delete();
-            }
-        }else{
-            Bitmap resizedBitmap = resizeBitmap(bitmap);
-            iconBitmap = resizedBitmap;
-            profile.saveIconLocalStorage(this, iconBitmap);
+            Picasso.with(this).load(R.drawable.otaku_icon).placeholder(R.drawable.otaku_icon).into(iconImage);
+        } else {
+            iconUri = uri;
+            File iconFile = new File(profile.getIconUri().toString());
+            Picasso.with(this).load(iconFile).transform(new ResizeTransformation()).placeholder(R.drawable.otaku_icon).into(iconImage);
         }
-        iconImage.setImageBitmap(iconBitmap);
     }
-    private Bitmap getIcon() {
-        return iconBitmap;
+
+    public Uri getIconUri() {
+        return iconUri;
     }
+
     private void setName(String name) {
         nameText.setText(name);
     }
@@ -164,7 +166,7 @@ public class ProfileActivity extends OtakuActivity {
 
         // データベースからデータを取得し各Viewにセット
         profile = MyUser.getMyUserById(this, id);
-        setIcon(profile.getIcon());
+        setIconUri(profile.getIconUri());
         setName(profile.getName());
         setTwitter(profile.getTwitterId());
         setComment(profile.getComment());
@@ -216,28 +218,6 @@ public class ProfileActivity extends OtakuActivity {
         }
     }
 
-    protected Bitmap resizeBitmap(Bitmap original) {
-        if(Math.max(original.getWidth(), original.getHeight()) == ICON_LONG_SIDE_LEN
-                && Math.min(original.getWidth(), original.getHeight()) <= ICON_LONG_SIDE_LEN){
-            return original;
-        }
-        if (original.getWidth() < original.getHeight()) {
-            return Bitmap.createScaledBitmap(
-                original,
-                ICON_LONG_SIDE_LEN * original.getWidth() / original.getHeight(),
-                ICON_LONG_SIDE_LEN,
-                false
-            );
-        } else {
-            return Bitmap.createScaledBitmap(
-                original,
-                ICON_LONG_SIDE_LEN,
-                ICON_LONG_SIDE_LEN * original.getHeight() / original.getWidth(),
-                false
-            );
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -249,17 +229,55 @@ public class ProfileActivity extends OtakuActivity {
                 FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
                 Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
                 parcelFileDescriptor.close();
-                setIcon(image);
+                if(image != null){
+                    profile.saveIconLocalStorage(this, resizeBitmap(image));
+                    setIconUri(profile.getIconUri());
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    public class ResizeTransformation implements Transformation {
+        @Override
+        public Bitmap transform(Bitmap original) {
+            return resizeBitmap(original);
+        }
+
+        @Override public String key() { return "resize()"; }
+    }
+
+    protected Bitmap resizeBitmap(Bitmap original) {
+        if(Math.max(original.getWidth(), original.getHeight()) == ICON_LONG_SIDE_LEN
+                && Math.min(original.getWidth(), original.getHeight()) == ICON_LONG_SIDE_LEN){
+            return original;
+        }
+
+        Bitmap result = Bitmap.createBitmap(ICON_LONG_SIDE_LEN, ICON_LONG_SIDE_LEN, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(result);
+        Rect srcRect = new Rect(0, 0, original.getWidth(), original.getHeight());
+        Rect destRect;
+        if (original.getWidth() < original.getHeight()) {
+            int minLength = ICON_LONG_SIDE_LEN * original.getWidth() / original.getHeight();
+            destRect = new Rect(0, 0, minLength, ICON_LONG_SIDE_LEN);
+            destRect.offset((ICON_LONG_SIDE_LEN - minLength) / 2, 0);
+        } else {
+            int minLength = ICON_LONG_SIDE_LEN * original.getHeight() / original.getWidth();
+            destRect = new Rect(0, 0, ICON_LONG_SIDE_LEN, minLength);
+            destRect.offset(0, (ICON_LONG_SIDE_LEN - minLength) / 2);
+        }
+        canvas.drawBitmap(original, srcRect, destRect, null);
+        if(!result.equals(original)){
+            original.recycle();
+        }
+        return result;
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
-        if(!getIcon().equals(profile.getIcon()) ||
+        if(!getIconUri().equals(profile.getIconUri()) ||
            !getName().equals(profile.getName()) ||
            !getTwitter().equals(profile.getTwitterId()) ||
            !getComment().equals(profile.getComment()) ||
