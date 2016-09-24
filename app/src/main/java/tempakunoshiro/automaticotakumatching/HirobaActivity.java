@@ -181,10 +181,10 @@ public class HirobaActivity extends OtakuActivity {
             ImageView icon = (ImageView) iconLayout.getChildAt(0);
             TextView text = (TextView) iconLayout.getChildAt(1);
             if(MyIcon.OTAKU_URI.equals(user.getIconUri())){
-                Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.otaku_icon).into(icon);
+                Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.yokootokob).into(icon);
             }else{
                 File iconFile = new File(user.getIconUri().toString());
-                Picasso.with(this).load(iconFile).placeholder(R.drawable.otaku_icon).into(icon);
+                Picasso.with(this).load(iconFile).placeholder(R.drawable.yokootokob).into(icon);
             }
             text.setText(user.getName());
             icon.setOnClickListener(cl);
@@ -198,10 +198,10 @@ public class HirobaActivity extends OtakuActivity {
                 ImageView icon = (ImageView) iconLayout.getChildAt(0);
                 TextView text = (TextView) iconLayout.getChildAt(1);
                 if(MyIcon.OTAKU_URI.equals(user.getIconUri())){
-                    Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.otaku_icon).into(icon);
+                    Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.yokootokob).into(icon);
                 }else{
                     File iconFile = new File(user.getIconUri().toString());
-                    Picasso.with(this).load(iconFile).placeholder(R.drawable.otaku_icon).into(icon);
+                    Picasso.with(this).load(iconFile).placeholder(R.drawable.yokootokob).into(icon);
                 }
                 text.setText(user.getName());
                 icon.setOnClickListener(cl);
