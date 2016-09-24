@@ -39,7 +39,7 @@ public class SendMessageIntentService extends IntentService {
                 Log.d(TAG, "Send : client mode");
                 Log.d(TAG, "socket : " + Arrays.toString(socketList.toArray(new Socket[]{})));
                 //クライアント時
-                message = "$" + message + "$";
+                message = "#" + message;
                 for(Socket socket : socketList){
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                     Log.d(TAG, "Sent : " + message);
@@ -50,7 +50,7 @@ public class SendMessageIntentService extends IntentService {
                 Log.d(TAG, "Send : server mode");
                 Log.d(TAG, "socket : " + Arrays.toString(socketList.toArray(new Socket[]{})));
                 //サーバ時
-                message = "#" + message + "$";
+  //              message = "#" + message + "$";
                 for(Socket socket : socketList){
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                     Log.d(TAG, "Sent : " + message);

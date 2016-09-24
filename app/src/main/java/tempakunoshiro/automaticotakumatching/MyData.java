@@ -63,7 +63,7 @@ public class MyData implements Serializable {
         if(outBytes == null){
             return "";
         }else{
-            return Base64.encodeToString(outBytes, Base64.DEFAULT);
+            return Base64.encodeToString(outBytes, Base64.NO_WRAP);
         }
     }
 }
