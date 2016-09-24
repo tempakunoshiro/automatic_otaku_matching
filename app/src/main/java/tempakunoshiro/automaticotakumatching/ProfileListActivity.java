@@ -5,10 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,7 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class ProfileListActivity extends AppCompatActivity {
+public class ProfileListActivity extends OtakuActivity {
 
     private LinearLayout profileList;
     private SwitcherReceiver receiver;
@@ -103,46 +100,6 @@ public class ProfileListActivity extends AppCompatActivity {
     protected void onDestroy() {
         unregisterReceiver(receiver);
         super.onDestroy();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuItem goHirobaItem = menu.add(R.string.go_hiroba_text);
-        goHirobaItem.setIcon(android.R.drawable.ic_menu_myplaces);
-        goHirobaItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        goHirobaItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Intent intent = new Intent(ProfileListActivity.this, HirobaActivity.class);
-                startActivity(intent);
-                return false;
-            }
-        });
-
-        MenuItem goScreamListItem = menu.add(R.string.go_scream_list_text);
-        goScreamListItem.setIcon(android.R.drawable.ic_menu_agenda);
-        goScreamListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        //goScreamListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-        //    @Override
-        //    public boolean onMenuItemClick(MenuItem item) {
-        //        Intent intent = new Intent(ProfileListActivity.this, ScreamListActivity.class);
-        //        startActivity(intent);
-        //        return false;
-        //    }
-        //});
-
-        MenuItem goProfileListItem = menu.add(R.string.go_profile_list_text);
-        goProfileListItem.setIcon(android.R.drawable.ic_menu_my_calendar);
-        goProfileListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        goProfileListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Intent intent = new Intent(ProfileListActivity.this, ProfileListActivity.class);
-                startActivity(intent);
-                return false;
-            }
-        });
-        return true;
     }
 
     public class SwitcherReceiver extends BroadcastReceiver {
