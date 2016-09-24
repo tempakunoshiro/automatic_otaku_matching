@@ -3,8 +3,12 @@ package tempakunoshiro.automaticotakumatching;
 import android.os.Parcelable;
 import android.util.Base64;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
@@ -19,10 +23,31 @@ public class MyData implements Serializable {
     public MyData(MyUser user, MyScream scream) {
         this.user = user;
         this.scream = scream;
-        if(MyApplication.getOtakuIcon().equals(user.getIcon()) || MyApplication.getEmootakuIcon().equals(user.getIcon())){
-            this.iconBytes = null;
-        }else{
-            this.iconBytes = user.getIconBytes();
+        this.iconBytes = null;
+        if(!MyIcon.OTAKU_URI.equals(user.getIconUri())){
+            InputStream is = null;
+            try {
+                File iconFile = new File(user.getIconUri().toString());
+                if(iconFile.exists()){
+                    is = new BufferedInputStream(new FileInputStream(iconFile));
+                    byte[] b = new byte[1];
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    while (is.read(b) > 0) {
+                        baos.write(b);
+                    }
+                    baos.close();
+                    this.iconBytes = baos.toByteArray();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if(is != null){
+                        is.close();
+                    }
+                } catch (IOException e) {
+                }
+            }
         }
     }
 

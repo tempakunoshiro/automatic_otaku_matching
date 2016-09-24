@@ -27,8 +27,8 @@ public class OtakuActivity extends AppCompatActivity {
         goScreamListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                //Intent intent = new Intent(OtakuActivity.this, ScreamListActivity.class);
-                //startActivity(intent);
+                Intent intent = new Intent(OtakuActivity.this, ScreamListActivity.class);
+                startActivity(intent);
                 return false;
             }
         });

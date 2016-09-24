@@ -25,75 +25,42 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
-public class ProfileListActivity extends OtakuActivity {
+public class ScreamListActivity extends OtakuActivity {
 
     private LinearLayout profileList;
     private SwitcherReceiver receiver;
     private SimpleDateFormat dateFormat;
-    private HashMap<Long, LinearLayout> liveRecords;
-    private static final int MAX_PROFILES = 30;
+    private static final int MAX_SCREAMS = 100;
 
-    private void addRecord(MyUser profile, LayoutInflater inflater) {
-        LinearLayout record = (LinearLayout) inflater.inflate(R.layout.profile_list_record, null);
+    private void addRecord(MyScream scream, LayoutInflater inflater) {
+        LinearLayout record = (LinearLayout) inflater.inflate(R.layout.scream_list_record, null);
 
         // XXX: LinearLayout だと getChildAt で要素取得するしかないっぽい
         ImageView iconImage = (ImageView) record.getChildAt(0);
         LinearLayout infoLinear = (LinearLayout) record.getChildAt(1);
-        TextView modifiedTimeText =
-                (TextView) ((LinearLayout) infoLinear.getChildAt(0)).getChildAt(2);
+        TextView postedTimeText =
+                (TextView) ((LinearLayout) infoLinear.getChildAt(0)).getChildAt(0);
         TextView nameText = (TextView) infoLinear.getChildAt(1);
-        TextView tagsText = (TextView) infoLinear.getChildAt(2);
+        TextView screamText = (TextView) infoLinear.getChildAt(2);
 
-        // レコードにユーザ情報を格納
-        if(MyIcon.OTAKU_URI.equals(profile.getIconUri())){
+        // レコードに叫び情報を格納
+        MyUser user = MyUser.getMyUserById(this, scream.getUserId());
+        if(MyIcon.OTAKU_URI.equals(user.getIconUri())){
             Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.otaku_icon).into(iconImage);
         }else{
-            File iconFile = new File(profile.getIconUri().toString());
+            File iconFile = new File(user.getIconUri().toString());
             Picasso.with(this).load(iconFile).placeholder(R.drawable.otaku_icon).into(iconImage);
         }
-        modifiedTimeText.setText(dateFormat.format(profile.getModifiedTime()));
-        nameText.setText(profile.getName());
-        StringBuilder tagStrBldr = new StringBuilder();
-        for(String tag : profile.getTagList()) {
-            tagStrBldr.append(" / #" + tag);
-        }
-        tagsText.setText(tagStrBldr.toString().replaceFirst(" / ", ""));
-
-        // クリックされたら ProfileActivity を起動
-        record.setOnClickListener(new View.OnClickListener() {
-            private long id;
-
-            public View.OnClickListener getInstance(long id) {
-                this.id = id;
-                return this;
-            }
-
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ProfileListActivity.this, ProfileActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putLong("ID", id);
-                intent.putExtras(bundle);
-                startActivity(intent);
-            }
-        }.getInstance(profile.getId()));
-
-        // すでに表示されているプロフィールであれば
-        // 既存の record を削除する．
-        if (liveRecords.containsKey(profile.getId())) {
-            profileList.removeView(liveRecords.get(profile.getId()));
-            liveRecords.put(profile.getId(), record);
-        }
+        postedTimeText.setText(dateFormat.format(scream.getTime()));
+        nameText.setText(user.getName());
+        screamText.setText(scream.getText());
 
         // 許容レコード数を超えていれば
         // 最も古いレコードを削除する．
-        if (MAX_PROFILES < profileList.getChildCount()) {
-            LinearLayout remRecord = (LinearLayout) profileList.getChildAt(MAX_PROFILES);
-            liveRecords.remove(remRecord.getChildAt(1));
-            profileList.removeViewAt(MAX_PROFILES);
+        if (MAX_SCREAMS < profileList.getChildCount()) {
+            profileList.removeViewAt(MAX_SCREAMS);
         }
 
         profileList.addView(record, 0);
@@ -105,23 +72,22 @@ public class ProfileListActivity extends OtakuActivity {
         setContentView(R.layout.activity_profile_list);
 
         dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        liveRecords = new HashMap<>();
 
         profileList = (LinearLayout) findViewById(R.id.profileList);
 
         LayoutInflater inflater = LayoutInflater.from(this);
 
-        // データベース上のユーザ全てを表示
-        List<MyUser> allUsers = MyUser.getAllMyUser(this);
-        Collections.sort(allUsers, new UserModifiedTimeComparator());
-        for(MyUser profile : allUsers.subList(0, Math.min(MAX_PROFILES - 1, allUsers.size()))) {
-            addRecord(profile, inflater);
+        // データベース上のscreamのうち新しいものからMAX_SCREAMS件を表示
+        List<MyScream> allScreams = MyScream.getAllMyScream(this);
+        Collections.sort(allScreams, new ScreamPostedTimeComparator());
+        for(MyScream scream : allScreams.subList(0, Math.min(MAX_SCREAMS - 1, allScreams.size()))) {
+            addRecord(scream, inflater);
         }
 
-        // 新規に受信したユーザを追加
+        // 新規に受信したscreamを追加
         receiver = new SwitcherReceiver(inflater);
         IntentFilter iFilter = new IntentFilter();
-        iFilter.addAction(Switcher.ACTION_USER_RECEIVED);
+        iFilter.addAction(Switcher.ACTION_SCREAM_RECEIVED);
         registerReceiver(receiver, iFilter);
     }
 
@@ -130,6 +96,7 @@ public class ProfileListActivity extends OtakuActivity {
         unregisterReceiver(receiver);
         super.onDestroy();
     }
+
 
     public void onScreamButtonTapped(View view) {
         ScreamSendDialog dialog = new ScreamSendDialog();
@@ -164,33 +131,33 @@ public class ProfileListActivity extends OtakuActivity {
 
     public class SwitcherReceiver extends BroadcastReceiver {
         private LayoutInflater inflater;
-        private UserModifiedTimeComparator comparator;
+        private ScreamPostedTimeComparator comparator;
 
         public SwitcherReceiver(LayoutInflater inflater) {
             super();
             this.inflater = inflater;
-            this.comparator = new UserModifiedTimeComparator();
+            this.comparator = new ScreamPostedTimeComparator();
         }
         @Override
         public void onReceive(Context context, Intent intent){
             String action = intent.getAction();
-            if(action.equals(Switcher.ACTION_USER_RECEIVED)) {
-                ArrayList<MyUser> userList = new ArrayList<>();
-                for(long userId : intent.getLongArrayExtra("USER")) {
-                    userList.add(MyUser.getMyUserById(ProfileListActivity.this, userId));
+            if(action.equals(Switcher.ACTION_SCREAM_RECEIVED)) {
+                ArrayList<MyScream> screamList = new ArrayList<>();
+                for(long screamId : intent.getLongArrayExtra("SCREAM")) {
+                    screamList.add(MyScream.getMyScreamById(ScreamListActivity.this, screamId));
                 }
-                Collections.sort(userList, comparator);
-                for(MyUser profile : userList) {
-                    addRecord(profile, inflater);
+                Collections.sort(screamList, comparator);
+                for(MyScream scream : screamList) {
+                    addRecord(scream, inflater);
                 }
             }
         }
     }
 
-    class UserModifiedTimeComparator implements Comparator<MyUser> {
+    class ScreamPostedTimeComparator implements Comparator<MyScream> {
         @Override
-        public int compare(MyUser prf1, MyUser prf2) {
-            return (int) (prf1.getModifiedTime() - prf2.getModifiedTime());
+        public int compare(MyScream scr1, MyScream scr2) {
+            return (int) (scr1.getTime() - scr2.getTime());
         }
     }
 }

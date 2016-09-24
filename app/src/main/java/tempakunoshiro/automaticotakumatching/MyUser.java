@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -12,6 +13,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.DatabaseTable;
+import com.squareup.picasso.Picasso;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -22,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,6 +117,25 @@ public class MyUser implements Parcelable, Serializable {
         return users;
     }
 
+    @Nullable
+    public static List<MyUser> getAllMyUserWithinTime(Context context, long time) {
+        DatabaseHelper dbHelper = DatabaseHelper.getInstance(context);
+        List<MyUser> users = new ArrayList<>();
+        try {
+            Dao userDao = dbHelper.getDao(MyUser.class);
+            QueryBuilder<MyUser, Integer> queryBuilder = userDao.queryBuilder();
+            queryBuilder.where().ge("modifiedTime", time);
+            List<MyUser> tempUsers = queryBuilder.query();
+            for(MyUser u : tempUsers){
+                u.setTagList(MyTag.getTagListById(context, u.getId()));
+                users.add(u);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
     public static final Creator<MyUser> CREATOR = new Creator<MyUser>() {
         @Override
         public MyUser createFromParcel(Parcel in) {
@@ -149,6 +171,7 @@ public class MyUser implements Parcelable, Serializable {
     }
 
     public boolean saveIconLocalStorage(Context context, Bitmap iconBmp) {
+        Picasso.with(context).invalidate(new File(getIconUri().toString()));
         OutputStream os = null;
         Bitmap tmpIcon = null;
         try {
@@ -170,57 +193,6 @@ public class MyUser implements Parcelable, Serializable {
         return false;
     }
 
-    private byte[] loadIconBytesLocalStorage(Context context) {
-        InputStream is = null;
-        try {
-            if(!new File(context.getFilesDir().toURI().resolve(String.valueOf(id) + ".png")).exists()){
-                return getDefaultIconBytes();
-            }
-            is = new BufferedInputStream(context.openFileInput(String.valueOf(id) + ".png"));
-
-            byte[] b = new byte[1];
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            while (is.read(b) > 0) {
-                baos.write(b);
-            }
-            baos.close();
-
-            return baos.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if(is != null){
-                    is.close();
-                }
-            } catch (IOException e) {
-            }
-        }
-        return getDefaultIconBytes();
-    }
-
-    private Bitmap loadIconLocalStorage(Context context) {
-        InputStream is = null;
-        try {
-            if(!new File(context.getFilesDir().toURI().resolve(String.valueOf(id) + ".png")).exists()){
-                return getDefaultIcon();
-            }
-            is = new BufferedInputStream(context.openFileInput(String.valueOf(id) + ".png"));
-
-            return BitmapFactory.decodeStream(is);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if(is != null){
-                    is.close();
-                }
-            } catch (IOException e) {
-            }
-        }
-        return getDefaultIcon();
-    }
-
     public long getId() {
         return id;
     }
@@ -237,16 +209,13 @@ public class MyUser implements Parcelable, Serializable {
         return comment;
     }
 
-    public Bitmap getIcon() {
-        Bitmap iconBmp = null;
-        iconBmp = loadIconLocalStorage(MyApplication.getContext());
-        return iconBmp;
-    }
-
-    public byte[] getIconBytes() {
-        byte[] iconBytes = null;
-        iconBytes = loadIconBytesLocalStorage(MyApplication.getContext());
-        return iconBytes;
+    public Uri getIconUri(){
+        Uri iconUri = Uri.parse(MyApplication.getContext().getFilesDir() + "/" + String.valueOf(id) + ".png");
+        File iconFile = new File(iconUri.toString());
+        if(iconFile.exists()){
+            return iconUri;
+        }
+        return MyIcon.OTAKU_URI;
     }
 
     public List<String> getTagList() {
@@ -259,20 +228,6 @@ public class MyUser implements Parcelable, Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    private byte[] getDefaultIconBytes(){
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        getDefaultIcon().compress(Bitmap.CompressFormat.PNG, 100, baos);
-        return baos.toByteArray();
-    }
-
-    private Bitmap getDefaultIcon(){
-        if("エモ=オタク".equals(name)){
-            return MyApplication.getEmootakuIcon();
-        }else{
-            return MyApplication.getOtakuIcon();
-        }
     }
 
     public void setTwitterId(String twitterId) {

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -19,14 +20,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.os.Handler;
 
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class HirobaActivity extends OtakuActivity {
 
@@ -140,15 +141,14 @@ public class HirobaActivity extends OtakuActivity {
     }
 
     public void onScreamButtonTapped(View view) {
-        String value = "";
-        ScreamSendDialog dialog = ScreamSendDialog.newInstance(value);
+        ScreamSendDialog dialog = new ScreamSendDialog();
         dialog.show(getFragmentManager(), "dialog");
     }
 
     private void showScream(MyScream scream){
         for (int i = 0; i < getOtakuIconCount(); i++) {
             RelativeLayout iconLayout = getOtakuIconAt(i);
-            if(iconUserMap.get(iconLayout.getId() ) == null) continue;
+            if(iconUserMap.get(iconLayout.getId()) == null) continue;
             if(scream.getUserId() == iconUserMap.get(iconLayout.getId())) {
                 TextView text = (TextView)findViewById(screamTextId.get(i));
 
@@ -180,7 +180,12 @@ public class HirobaActivity extends OtakuActivity {
             RelativeLayout iconLayout = (RelativeLayout)findViewById(R.id.myIcon);
             ImageView icon = (ImageView) iconLayout.getChildAt(0);
             TextView text = (TextView) iconLayout.getChildAt(1);
-            icon.setImageBitmap(user.getIcon());
+            if(MyIcon.OTAKU_URI.equals(user.getIconUri())){
+                Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.otaku_icon).into(icon);
+            }else{
+                File iconFile = new File(user.getIconUri().toString());
+                Picasso.with(this).load(iconFile).placeholder(R.drawable.otaku_icon).into(icon);
+            }
             text.setText(user.getName());
             icon.setOnClickListener(cl);
             text.setOnClickListener(cl);
@@ -192,7 +197,12 @@ public class HirobaActivity extends OtakuActivity {
                 if (iconUserMap.containsKey(iconLayout.getId())) continue;
                 ImageView icon = (ImageView) iconLayout.getChildAt(0);
                 TextView text = (TextView) iconLayout.getChildAt(1);
-                icon.setImageBitmap(user.getIcon());
+                if(MyIcon.OTAKU_URI.equals(user.getIconUri())){
+                    Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.otaku_icon).into(icon);
+                }else{
+                    File iconFile = new File(user.getIconUri().toString());
+                    Picasso.with(this).load(iconFile).placeholder(R.drawable.otaku_icon).into(icon);
+                }
                 text.setText(user.getName());
                 icon.setOnClickListener(cl);
                 text.setOnClickListener(cl);
@@ -221,45 +231,6 @@ public class HirobaActivity extends OtakuActivity {
         }
     }
 
-    public static class ScreamSendDialog extends DialogFragment
-    {
-        private EditText editText;
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            LinearLayout content = (LinearLayout) inflater.inflate(R.layout.dialog_edit_text, null);
-            editText = (EditText) content.findViewById(R.id.editText);
-            builder.setView(content);
-
-            builder.setTitle(R.string.send_scream_text);
-            editText.setSingleLine(true);
-            editText.setText(getArguments().getString("value"));
-
-            builder.setPositiveButton("送信", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    //SendSwicher
-                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences((HirobaActivity)getActivity());
-                    long id = pref.getLong("USER_ID", 0);
-                    ArrayList<String> tags = new ArrayList<String>();
-                    Switcher.sendData((HirobaActivity)getActivity(), new MyScream(id, editText.getText().toString(), System.currentTimeMillis()));
-                }
-            });
-            return builder.create();
-        }
-
-        public static ScreamSendDialog newInstance(String value){
-            ScreamSendDialog dialog = new ScreamSendDialog();
-            Bundle args = new Bundle();
-            args.putString("value", value);
-            dialog.setArguments(args);
-            return dialog;
-        }
-    }
-
     private class SwitcherReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent){
@@ -284,6 +255,32 @@ public class HirobaActivity extends OtakuActivity {
         super.onDestroy();
 
         if(manager != null)manager.destroy();
+    }
+
+    public static class ScreamSendDialog extends DialogFragment {
+        private EditText editText;
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LinearLayout content = (LinearLayout) inflater.inflate(R.layout.dialog_edit_text, null);
+            editText = (EditText) content.findViewById(R.id.editText);
+            builder.setView(content);
+
+            builder.setTitle(R.string.send_scream_text);
+
+            builder.setPositiveButton(R.string.send_text, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    long id = pref.getLong("USER_ID", 0);
+                    Switcher.sendData(getActivity(), new MyScream(id, editText.getText().toString(), System.currentTimeMillis()));
+                }
+            });
+            return builder.create();
+        }
     }
 
     private class TimerReceiver extends BroadcastReceiver{

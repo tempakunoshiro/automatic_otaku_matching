@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AutomaticOtakuMatching</string>
+    <string name="app_name">オタマチ</string>
     <string name="tags_label_text">タグ</string>
     <string name="comment_label_text">コメント</string>
     <string name="twitter_label_text">Twitter</string>
@@ -10,6 +10,7 @@
     <string name="new_tag_text">新しいタグ</string>
     <string name="last_received">最終受信時刻</string>
     <string name="send_scream_text">心の叫びを送信</string>
+    <string name="send_text">送信</string>
     <string name="default_name">君の名は．</string>
     <string name="default_twitter">twitter</string>
     <string name="default_comment">コメントを入力して下さい．</string>
