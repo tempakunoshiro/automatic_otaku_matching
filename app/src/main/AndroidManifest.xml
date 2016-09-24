@@ -21,17 +21,19 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar" >
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
         <activity android:name=".HirobaActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ProfileListActivity"
+            android:uiOptions="splitActionBarWhenNarrow" />
         <activity android:name=".ProfileActivity"
-                  android:uiOptions="splitActionBarWhenNarrow"/>
-        <activity android:name=".ProfileListActivity" />
+            android:uiOptions="splitActionBarWhenNarrow" />
+        <activity android:name=".AboutMeActivity"
+            android:uiOptions="splitActionBarWhenNarrow" />
 
         <service android:name=".Switcher" />
         <service android:name=".MatchingService" />
@@ -39,18 +41,17 @@
         <service
             android:name=".WifiDirectIntentService"
             android:exported="false" />
-
         <receiver
             android:name=".WifiDirectBroadcastReceiver"
             android:enabled="true"
             android:exported="true" />
-
         <service
             android:name=".SendMessageIntentService"
             android:exported="false" />
         <service
             android:name=".ReceiveMessageIntentService"
             android:exported="false"></service>
+
     </application>
 
 </manifest>

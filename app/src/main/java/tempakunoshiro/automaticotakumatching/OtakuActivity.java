@@ -24,14 +24,14 @@ public class OtakuActivity extends AppCompatActivity {
         MenuItem goScreamListItem = menu.add(R.string.go_scream_list_text);
         goScreamListItem.setIcon(android.R.drawable.ic_menu_agenda);
         goScreamListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        //goScreamListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-        //    @Override
-        //    public boolean onMenuItemClick(MenuItem item) {
-        //        Intent intent = new Intent(OtakuActivity.this, ScreamListActivity.class);
-        //        startActivity(intent);
-        //        return false;
-        //    }
-        //});
+        goScreamListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(OtakuActivity.this, ScreamListActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
 
         MenuItem goProfileListItem = menu.add(R.string.go_profile_list_text);
         goProfileListItem.setIcon(android.R.drawable.ic_menu_my_calendar);
@@ -44,6 +44,19 @@ public class OtakuActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        MenuItem goAboutMeItem = menu.add(R.string.go_about_me_text);
+        goAboutMeItem.setIcon(android.R.drawable.ic_menu_help);
+        goAboutMeItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        goAboutMeItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(OtakuActivity.this, AboutMeActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
         return true;
     }
 }

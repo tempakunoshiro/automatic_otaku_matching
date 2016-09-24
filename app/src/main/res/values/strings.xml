@@ -16,4 +16,5 @@
     <string name="go_hiroba_text">ひろばを開く</string>
     <string name="go_scream_list_text">さけびリストを開く</string>
     <string name="go_profile_list_text">プロフィールリストを開く</string>
+    <string name="go_about_me_text"> 本ソフトウェアについて</string>
 </resources>
