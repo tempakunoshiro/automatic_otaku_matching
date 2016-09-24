@@ -153,7 +153,7 @@ public class MyUser implements Parcelable, Serializable {
         Bitmap tmpIcon = null;
         try {
             os = new BufferedOutputStream(context.openFileOutput(String.valueOf(id) + ".png", Context.MODE_PRIVATE));
-            tmpIcon = iconBmp.copy(Bitmap.Config.ARGB_8888, true);
+            tmpIcon = iconBmp.copy(Bitmap.Config.ARGB_4444, true);
             return tmpIcon.compress(Bitmap.CompressFormat.PNG, 100, os);
         } catch (IOException e) {
         } finally {
@@ -269,9 +269,9 @@ public class MyUser implements Parcelable, Serializable {
 
     private Bitmap getDefaultIcon(){
         if("エモ=オタク".equals(name)){
-            return BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.emootaku_icon);
+            return MyApplication.getEmootakuIcon();
         }else{
-            return BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.otaku_icon);
+            return MyApplication.getOtakuIcon();
         }
     }
 

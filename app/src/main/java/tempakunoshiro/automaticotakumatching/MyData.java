@@ -19,7 +19,11 @@ public class MyData implements Serializable {
     public MyData(MyUser user, MyScream scream) {
         this.user = user;
         this.scream = scream;
-        this.iconBytes = user.getIconBytes();
+        if(MyApplication.getOtakuIcon().equals(user.getIcon()) || MyApplication.getEmootakuIcon().equals(user.getIcon())){
+            this.iconBytes = null;
+        }else{
+            this.iconBytes = user.getIconBytes();
+        }
     }
 
     public MyUser getUser() {

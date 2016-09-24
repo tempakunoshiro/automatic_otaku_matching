@@ -19,6 +19,7 @@ import com.j256.ormlite.stmt.Where;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.sql.SQLException;
@@ -114,7 +115,6 @@ public class Switcher extends IntentService {
                 // ユーザーデータ送信
                 if(user != null) {
                     Intent userIntent = new Intent(ACTION_USER_RECEIVED);
-                    List<MyUser> users = new ArrayList<>();
 
                     long[] idArray = new long[allUsers.size()];
                     for(int i = 0; i < allUsers.size(); i++){
@@ -127,8 +127,6 @@ public class Switcher extends IntentService {
                 // スクリームデータ送信
                 if(scream != null) {
                     Intent screamIntent = new Intent(ACTION_SCREAM_RECEIVED);
-                    List<MyScream> screams = new ArrayList<>();
-                    screams.addAll(allScreams);
 
                     long[] idArray = new long[allScreams.size()];
                     for(int i = 0; i < allScreams.size(); i++){
@@ -176,10 +174,16 @@ public class Switcher extends IntentService {
         try {
             ois = new ObjectInputStream(new ByteArrayInputStream(Base64.decode(base64Str, Base64.DEFAULT)));
             MyData data = (MyData) ois.readObject();
-
             intent.putExtra("USER", (Parcelable) data.getUser());
             intent.putExtra("SCREAM", (Parcelable) data.getScream());
-            data.getUser().saveIconLocalStorage(context, BitmapFactory.decodeByteArray(data.getIconBytes(), 0, data.getIconBytes().length));
+            if(data.getIconBytes() == null){
+                File iconFile = new File(context.getFilesDir().toURI().resolve(String.valueOf(data.getUser().getId()) + ".png"));
+                if(iconFile.exists()){
+                    iconFile.delete();
+                }
+            }else{
+                data.getUser().saveIconLocalStorage(context, BitmapFactory.decodeByteArray(data.getIconBytes(), 0, data.getIconBytes().length));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {

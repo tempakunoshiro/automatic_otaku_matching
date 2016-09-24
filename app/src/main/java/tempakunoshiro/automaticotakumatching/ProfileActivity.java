@@ -44,9 +44,10 @@ public class ProfileActivity extends OtakuActivity {
     private void setIcon(Bitmap bitmap) {
         Bitmap resizedBitmap = resizeBitmap(bitmap);
         iconBitmap = resizedBitmap;
-        iconImage.setImageBitmap(resizedBitmap);
-
-        profile.saveIconLocalStorage(this, iconBitmap);
+        if(!MyApplication.getOtakuIcon().equals(bitmap) && !MyApplication.getEmootakuIcon().equals(bitmap)){
+            profile.saveIconLocalStorage(this, iconBitmap);
+        }
+        iconImage.setImageBitmap(iconBitmap);
     }
     private Bitmap getIcon() {
         return iconBitmap;
@@ -201,6 +202,10 @@ public class ProfileActivity extends OtakuActivity {
     }
 
     protected Bitmap resizeBitmap(Bitmap original) {
+        if(Math.max(original.getWidth(), original.getHeight()) == ICON_LONG_SIDE_LEN
+                && Math.min(original.getWidth(), original.getHeight()) <= ICON_LONG_SIDE_LEN){
+            return original;
+        }
         if (original.getWidth() < original.getHeight()) {
             return Bitmap.createScaledBitmap(
                 original,

@@ -74,6 +74,6 @@ public class MyIcon {
     }
 
     private static Bitmap getDefaultIcon(){
-        return BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.drawable.otaku_icon);
+        return MyApplication.getOtakuIcon();
     }
 }
