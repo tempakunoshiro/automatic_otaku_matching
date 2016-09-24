@@ -30,11 +30,8 @@ import com.squareup.picasso.Transformation;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.R.attr.data;
 
 public class ProfileActivity extends OtakuActivity {
     private MyUser profile;
@@ -57,11 +54,11 @@ public class ProfileActivity extends OtakuActivity {
             if (profileIconFile.exists()) {
                 profileIconFile.delete();
             }
-            Picasso.with(this).load(R.drawable.otaku_icon).placeholder(R.drawable.otaku_icon).into(iconImage);
+            Picasso.with(this).load(R.drawable.yokootokob).placeholder(R.drawable.yokootokob).into(iconImage);
         } else {
             iconUri = uri;
             File iconFile = new File(profile.getIconUri().toString());
-            Picasso.with(this).load(iconFile).transform(new ResizeTransformation()).placeholder(R.drawable.otaku_icon).into(iconImage);
+            Picasso.with(this).load(iconFile).transform(new ResizeTransformation()).placeholder(R.drawable.yokootokob).into(iconImage);
         }
     }
 

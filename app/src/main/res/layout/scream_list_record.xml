@@ -5,7 +5,7 @@
 
     <ImageView
         android:id="@+id/iconImage"
-        android:src="@drawable/otaku_icon"
+        android:src="@drawable/yokootokob"
         android:layout_width="80dp"
         android:layout_height="80dp" />
 

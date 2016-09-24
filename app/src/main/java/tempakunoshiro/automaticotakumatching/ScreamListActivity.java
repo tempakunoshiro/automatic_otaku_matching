@@ -46,10 +46,10 @@ public class ScreamListActivity extends OtakuActivity {
         // レコードに叫び情報を格納
         MyUser user = MyUser.getMyUserById(this, scream.getUserId());
         if(MyIcon.OTAKU_URI.equals(user.getIconUri())){
-            Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.otaku_icon).into(iconImage);
+            Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.yokootokob).into(iconImage);
         }else{
             File iconFile = new File(user.getIconUri().toString());
-            Picasso.with(this).load(iconFile).placeholder(R.drawable.otaku_icon).into(iconImage);
+            Picasso.with(this).load(iconFile).placeholder(R.drawable.yokootokob).into(iconImage);
         }
         postedTimeText.setText(dateFormat.format(scream.getTime()));
         nameText.setText(user.getName());

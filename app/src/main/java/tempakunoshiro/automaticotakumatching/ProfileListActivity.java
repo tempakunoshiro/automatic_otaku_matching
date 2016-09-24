@@ -48,10 +48,10 @@ public class ProfileListActivity extends OtakuActivity {
 
         // レコードにユーザ情報を格納
         if(MyIcon.OTAKU_URI.equals(profile.getIconUri())){
-            Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.otaku_icon).into(iconImage);
+            Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.yokootokob).into(iconImage);
         }else{
             File iconFile = new File(profile.getIconUri().toString());
-            Picasso.with(this).load(iconFile).placeholder(R.drawable.otaku_icon).into(iconImage);
+            Picasso.with(this).load(iconFile).placeholder(R.drawable.yokootokob).into(iconImage);
         }
         modifiedTimeText.setText(dateFormat.format(profile.getModifiedTime()));
         nameText.setText(profile.getName());
