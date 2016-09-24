@@ -45,7 +45,7 @@ public class WifiDirectManager {
 
 
     private static String mode = MODE_CLIENT;
-    private boolean isConnected = false;
+    private static boolean isConnected = false;
 
     private static List<Socket> socketList;
 
@@ -113,7 +113,10 @@ public class WifiDirectManager {
 
     public void searchGroupOwner(WifiP2pDeviceList deviceList){
         //接続済みなら接続しない
-        if(isConnected)return;
+        //ただし接続済みかつ
+        if(isConnected){
+            return;
+        }
 
         WifiP2pDevice defaultDevice = null;
         for(WifiP2pDevice device : deviceList.getDeviceList()){
@@ -196,10 +199,16 @@ public class WifiDirectManager {
 
     }
 
-    public boolean isConnected() {
+    public void reOpenSocket(WifiP2pInfo info){
+        Intent intent = new Intent(context, ReceiveMessageIntentService.class);
+        intent.putExtra(EXTRA_WIFI_P2P_INFO, info);
+        context.startService(intent);
+    }
+
+    public static boolean isConnected() {
         return isConnected;
     }
-    public void setConnected(boolean connected) {
+    public static void setConnected(boolean connected) {
         isConnected = connected;
     }
 

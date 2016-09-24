@@ -49,12 +49,18 @@ public class ReceiveMessageIntentService extends IntentService {
                 socket.bind(null);
             } catch (IOException e) {
                 Log.e("ClientMode/Socket1", e.toString());
+//                WifiDirectManager.setConnected(false);
+//                onHandleIntent(intent);
+                return;
             }
 
             try {
                 socket.connect(new InetSocketAddress(info.groupOwnerAddress.getHostAddress(), 8988), 5000);
             } catch (IOException e) {
                 Log.e("ClientMode/Socket2", e.toString());
+//                WifiDirectManager.setConnected(false);
+//                onHandleIntent(intent);
+                return;
             }
         }else if(mode.equals(WifiDirectManager.MODE_GROUP_OWNER)){
             Log.d(TAG, "Create socket : server mode");
@@ -66,17 +72,25 @@ public class ReceiveMessageIntentService extends IntentService {
                     WifiDirectManager.setServerSocket(serverSocket);
                 } catch (IOException e) {
                     Log.e("ServerMode/Socket1", e.toString());
+//                    WifiDirectManager.setConnected(false);
+//                    onHandleIntent(intent);
+                    return;
                 }
             }
             try {
                 socket = serverSocket.accept();
             } catch (IOException e) {
                 Log.e("ServerMode/Socket2", e.toString());
+//                WifiDirectManager.setConnected(false);
+//                onHandleIntent(intent);
+                return;
             }
 
         }
-        if(socket == null){
+        if(socket == null || !socket.isConnected()){
             Log.d(TAG, "Cannot create socket");
+//            WifiDirectManager.setConnected(false);
+//            onHandleIntent(intent);
             return;
         }
         Log.d(TAG, "Socket is opened");
@@ -103,6 +117,7 @@ public class ReceiveMessageIntentService extends IntentService {
                  さらにSwitcherにsb.toStringを渡す
                  4の場合、再送信しなければならない文字列なので再送信フラグをtrue、あとは1と同じ
                  */
+                /*
                 if(str.startsWith("#")){
                     sb.append(str, 1, str.length());
                 }else if(str.startsWith("&")){
@@ -120,6 +135,13 @@ public class ReceiveMessageIntentService extends IntentService {
                 }else{
                     sb.append(str);
                 }
+                */
+                if(WifiDirectManager.getMode().equals(WifiDirectManager.MODE_GROUP_OWNER)){
+                    if(str.startsWith("#")) {
+//                        SendMessageIntentService.startSendAction(getApplicationContext(), str.substring(1));
+                    }
+                }
+                Switcher.sendData(getApplicationContext(), str);
             }
 
             Log.d(TAG, "Reading finished");

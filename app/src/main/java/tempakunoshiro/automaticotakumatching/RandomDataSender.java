@@ -3,9 +3,17 @@ package tempakunoshiro.automaticotakumatching;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 
 import com.github.javafaker.Faker;
 
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +47,8 @@ public class RandomDataSender extends IntentService {
                     long id =(long) Math.ceil(Math.random() * Long.MAX_VALUE);
                     u = new MyUser(id, faker.name().lastName() + faker.name().firstName(), "twitter", "Comment", Arrays.asList(tags.get(0)), System.currentTimeMillis());
                     s = new MyScream(id, "叫びだよ～", System.currentTimeMillis());
+                    Bitmap image = BitmapFactory.decodeResource(getApplicationContext().getResources(), getRandomOtaku());
+                    u.saveIconLocalStorage(this, image);
                     users.add(u);
                 }else{
                     Collections.shuffle(users);
@@ -59,6 +69,23 @@ public class RandomDataSender extends IntentService {
                 e.printStackTrace();
             }
         }
+    }
+
+    private int getRandomOtaku(){
+        List<Integer> resList = new ArrayList<Integer>();
+        String path = "android.resource://tempakunoshiro.automaticotakumatching/";
+        resList.add(R.drawable.blue_otaku_icon);
+        resList.add(R.drawable.red_otaku_icon);
+        resList.add(R.drawable.green_otaku_icon);
+        resList.add(R.drawable.yellow_otaku_icon);
+        resList.add( R.drawable.purple_otaku_icon);
+        resList.add(R.drawable.lightblue_otaku_icon);
+        resList.add( R.drawable.lightgreen_otaku_icon);
+        resList.add(R.drawable.otaku_icon);
+        resList.add(R.drawable.pink_otaku_icon);
+        Random random = new Random();
+        int res = resList.get(random.nextInt(resList.size()));
+        return res;
     }
 
     public static void sendRandomData(Context context, int intervalMillis) {
