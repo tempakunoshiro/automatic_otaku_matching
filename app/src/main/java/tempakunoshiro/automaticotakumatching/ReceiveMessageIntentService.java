@@ -33,15 +33,14 @@ public class ReceiveMessageIntentService extends IntentService {
             Log.d(TAG, "intent is null");
             return;
         }
-        WifiP2pInfo info = (WifiP2pInfo)intent.getSerializableExtra(
-                WifiDirectIntentService.EXTRA_WIFI_P2P_INFO);
-        String mode = intent.getStringExtra(WifiDirectIntentService.EXTRA_MODE);
+        WifiP2pInfo info = (WifiP2pInfo)intent.getParcelableExtra(WifiDirectManager.EXTRA_WIFI_P2P_INFO);
+        String mode = WifiDirectManager.getMode();
 
-        ServerSocket serverSocket = WifiDirectIntentService.getServerSocket();
+        ServerSocket serverSocket = WifiDirectManager.getServerSocket();
 
         Socket socket = null;
 
-        if(mode.equals(WifiDirectIntentService.MODE_CLIENT)){
+        if(mode.equals(WifiDirectManager.MODE_CLIENT)){
             socket = new Socket();
             Log.d(TAG, "Create socket : client mode");
 
@@ -56,14 +55,14 @@ public class ReceiveMessageIntentService extends IntentService {
             } catch (IOException e) {
                 Log.e("ClientMode/Socket2", e.toString());
             }
-        }else if(mode.equals(WifiDirectIntentService.MODE_GROUP_OWNER)){
+        }else if(mode.equals(WifiDirectManager.MODE_GROUP_OWNER)){
             Log.d(TAG, "Create socket : server mode");
             if(serverSocket == null){
                 try {
                     serverSocket = new ServerSocket();
                     serverSocket.setReuseAddress(true);
                     serverSocket.bind(new InetSocketAddress(8988));
-                    WifiDirectIntentService.setServerSocket(serverSocket);
+                    WifiDirectManager.setServerSocket(serverSocket);
                 } catch (IOException e) {
                     Log.e("ServerMode/Socket1", e.toString());
                 }
@@ -80,7 +79,7 @@ public class ReceiveMessageIntentService extends IntentService {
             return;
         }
         Log.d(TAG, "Socket is opened");
-        WifiDirectIntentService.addSocket(socket);
+        WifiDirectManager.addSocket(socket);
         try {
             InputStream inputStream = socket.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));

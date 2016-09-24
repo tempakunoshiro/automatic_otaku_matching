@@ -32,10 +32,10 @@ public class SendMessageIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if(intent == null)return;
         final String message = intent.getStringExtra(EXTRA_MESSAGE);
-        String mode = WifiDirectIntentService.getMode();
-        List<Socket> socketList = WifiDirectIntentService.getSocketList();
+        String mode = WifiDirectManager.getMode();
+        List<Socket> socketList = WifiDirectManager.getSocketList();
         try {
-            if (mode.equals(WifiDirectIntentService.MODE_CLIENT)) {
+            if (mode.equals(WifiDirectManager.MODE_CLIENT)) {
                 Log.d(TAG, "Send : client mode");
                 Log.d(TAG, "socket : " + Arrays.toString(socketList.toArray(new Socket[]{})));
                 //クライアント時
@@ -45,7 +45,7 @@ public class SendMessageIntentService extends IntentService {
                     writer.write(message+"\n");
                     writer.flush();
                 }
-            } else if(mode.equals(WifiDirectIntentService.MODE_GROUP_OWNER)){
+            } else if(mode.equals(WifiDirectManager.MODE_GROUP_OWNER)){
                 Log.d(TAG, "Send : server mode");
                 Log.d(TAG, "socket : " + Arrays.toString(socketList.toArray(new Socket[]{})));
                 //サーバ時

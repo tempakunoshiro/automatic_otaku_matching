@@ -1,8 +1,7 @@
 package tempakunoshiro.automaticotakumatching;
 
-import android.app.IntentService;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WpsInfo;
@@ -18,27 +17,15 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
+
+import static android.content.Context.WIFI_SERVICE;
 
 /**
- * アプリの開始時にWifiDirectIntentService.startWifiDirectを一度だけ呼んでください
- * 呼んだ時に端末のWifiの状態がOFFであれば、そのことがブロードキャストされます
- * アクション：WifiDirectIntentService.ACTION_WIFI_DISABLED
- * 特に値は設定されていません
- *
- * 何か受信した場合、ブロードキャストされます
- *  アクション：ReceiveMessageIntentService.ACTION_RECEIVE_MESSAGE
- *  名前：ReceiveMessageIntentService.EXTRA_RECEIVED_MESSAGE
- *  String型で帰ってきます
- *
- * データを送信する場合、SendMessageIntentService.startSendAction(Context context, String Message)
- *  を呼んでください
- *
- * デバッグ用のログが大量に流れます
+ * Created by kamiori on 2016/09/24.
  */
-public class WifiDirectIntentService extends IntentService {
-    public static final String TAG = "WIfiDirect";
+
+public class WifiDirectManager {
+    public static final String TAG = "WifiDirectManager";
     public static final String EXTRA_WIFI_P2P_INFO = "tempakunoshiro.automaticotakumatching.extra.WIFI_P2P_INFO";
     public static final String EXTRA_MODE = "tempakunoshiro.automaticotakumatching.extra.MODE";
 
@@ -48,6 +35,8 @@ public class WifiDirectIntentService extends IntentService {
     private static final int DELAY = 1000;
     public static final String MODE_GROUP_OWNER = "Group Owner";
     public static final String MODE_CLIENT = "Client";
+
+    private Context context;
 
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
@@ -82,40 +71,44 @@ public class WifiDirectIntentService extends IntentService {
         }
     };
 
-    public WifiDirectIntentService() {
-        super("WifiDirectIntentService");
-    }
-
-    /**
-     * 1回だけ呼び出してください
-     *
-     */
-    public static void startWifiDirect(Context context) {
-        Intent intent = new Intent(context, WifiDirectIntentService.class);
-        context.startService(intent);
-    }
-
     /**
      * 一度だけする必要がある初期化処理
      */
-    @Override
-    public void onCreate() {
+    public WifiDirectManager(Context context) {
+        this.context = context;
 //        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
 
-        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        channel = manager.initialize(this, getMainLooper(), null);
+        manager = (WifiP2pManager) context.getSystemService(Context.WIFI_P2P_SERVICE);
+        channel = manager.initialize(context, context.getMainLooper(), null);
 
         receiver = new WifiDirectBroadcastReceiver(manager, channel, this);
 
         socketList = Collections.synchronizedList(new ArrayList<Socket>());
+
+        context.registerReceiver(receiver, intentFilter);
+        //端末の探索を1秒ごとに行う
+        requestPeersHandler.postDelayed(requestPeersTask, DELAY);
+
+        WifiManager mManager = (WifiManager) context.getSystemService(WIFI_SERVICE);
+        int wifiState = mManager.getWifiState();
+        if(!(wifiState == WifiManager.WIFI_STATE_ENABLED || wifiState == WifiManager.WIFI_STATE_ENABLING)){
+            broadcastWifiIsDisabled();
+        }
+
+        Log.d(TAG, "Send Broadcast");
+
+        broadcastWifiIsDisabled();
+
     }
 
     //WifiがOFFであることをブロードキャストする
     public void broadcastWifiIsDisabled(){
-        Intent intent = new Intent(ACTION_WIFI_DISABLED);
-        sendBroadcast(intent);
+        Intent intent = new Intent();
+        intent.setAction(ACTION_WIFI_DISABLED);
+        context.sendBroadcast(intent);
+
     }
 
     public void searchGroupOwner(WifiP2pDeviceList deviceList){
@@ -197,9 +190,9 @@ public class WifiDirectIntentService extends IntentService {
             Log.d(TAG, "This device is Client");
         }
 
-        Intent intent = new Intent(this, ReceiveMessageIntentService.class);
+        Intent intent = new Intent(context, ReceiveMessageIntentService.class);
         intent.putExtra(EXTRA_WIFI_P2P_INFO, info);
-        startService(intent);
+        context.startService(intent);
 
     }
 
@@ -210,17 +203,7 @@ public class WifiDirectIntentService extends IntentService {
         isConnected = connected;
     }
 
-    @Override
     protected void onHandleIntent(Intent intent) {
-        registerReceiver(receiver, intentFilter);
-        //端末の探索を1秒ごとに行う
-        requestPeersHandler.postDelayed(requestPeersTask, DELAY);
-
-        WifiManager mManager = (WifiManager) getSystemService(WIFI_SERVICE);
-        int wifiState = mManager.getWifiState();
-        if(!(wifiState == WifiManager.WIFI_STATE_ENABLED || wifiState == WifiManager.WIFI_STATE_ENABLING)){
-            broadcastWifiIsDisabled();
-        }
     }
 
     public static ServerSocket getServerSocket(){
@@ -228,7 +211,7 @@ public class WifiDirectIntentService extends IntentService {
     }
 
     public static void setServerSocket(ServerSocket serverSocket){
-        WifiDirectIntentService.serverSocket = serverSocket;
+        WifiDirectManager.serverSocket = serverSocket;
     }
 
     public static List<Socket> getSocketList(){
@@ -243,9 +226,7 @@ public class WifiDirectIntentService extends IntentService {
         return mode;
     }
 
-    @Override
-    public void onDestroy() {
-        Log.d(TAG, "Service Destroyed");
-        unregisterReceiver(receiver);
+    public void destroy() {
+        context.unregisterReceiver(receiver);
     }
 }
