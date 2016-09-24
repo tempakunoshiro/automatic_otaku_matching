@@ -42,6 +42,8 @@ public class HirobaActivity extends OtakuActivity {
     private static final String ACTION_TIMER_RECEIVED = "tempakunoshiro.automaticotakumatching.ACTION_TIMER_RECEIVED";
     private RelativeLayout hirobaLayout;
 
+    WifiDirectManager manager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +91,8 @@ public class HirobaActivity extends OtakuActivity {
             intent.putExtras(bundle);
             startActivity(intent);
         }
+
+        manager = new WifiDirectManager(getApplicationContext());
     }
 
     @Override
@@ -275,6 +279,8 @@ public class HirobaActivity extends OtakuActivity {
     public void onDestroy() {
         unregisterReceiver(receiver);
         super.onDestroy();
+
+        if(manager != null)manager.destroy();
     }
 
     private class TimerReceiver extends BroadcastReceiver{

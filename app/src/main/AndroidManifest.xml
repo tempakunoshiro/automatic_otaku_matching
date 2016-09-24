@@ -3,6 +3,17 @@
     package="tempakunoshiro.automaticotakumatching">
 
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission
+        android:name="android.permission.ACCESS_WIFI_STATE"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.CHANGE_WIFI_STATE"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.INTERNET"
+        android:required="true" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <application
         android:name=".MyApplication"
@@ -25,7 +36,21 @@
         <service android:name=".Switcher" />
         <service android:name=".MatchingService" />
         <service android:name=".RandomDataSender" />
+        <service
+            android:name=".WifiDirectIntentService"
+            android:exported="false" />
 
+        <receiver
+            android:name=".WifiDirectBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
+            android:name=".SendMessageIntentService"
+            android:exported="false" />
+        <service
+            android:name=".ReceiveMessageIntentService"
+            android:exported="false"></service>
     </application>
 
 </manifest>
