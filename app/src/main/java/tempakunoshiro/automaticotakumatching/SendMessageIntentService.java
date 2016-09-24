@@ -31,13 +31,14 @@ public class SendMessageIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if(intent == null)return;
-        final String message = intent.getStringExtra(EXTRA_MESSAGE);
+        String message = intent.getStringExtra(EXTRA_MESSAGE);
         String mode = WifiDirectManager.getMode();
         List<Socket> socketList = WifiDirectManager.getSocketList();
         try {
             if (mode.equals(WifiDirectManager.MODE_CLIENT)) {
                 Log.d(TAG, "Send : client mode");
                 Log.d(TAG, "socket : " + Arrays.toString(socketList.toArray(new Socket[]{})));
+                message = "#" + message;
                 //クライアント時
                 for(Socket socket : socketList){
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));

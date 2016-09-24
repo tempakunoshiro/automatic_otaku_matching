@@ -89,7 +89,11 @@ public class ReceiveMessageIntentService extends IntentService {
             while ((str = reader.readLine()) != null){
                 Log.d(TAG, "Received : " + str);
                 //strをブロードキャストする
-
+                if(WifiDirectManager.getMode().equals(WifiDirectManager.MODE_GROUP_OWNER)){
+                    if(str.startsWith("#")){
+                        SendMessageIntentService.startSendAction(getApplicationContext(), str.substring(1));
+                    }
+                }
                 Intent messageIntent = new Intent();
                 messageIntent.setAction(ACTION_RECEIVE_MESSAGE);
                 messageIntent.putExtra(EXTRA_RECEIVED_MESSAGE, str);
