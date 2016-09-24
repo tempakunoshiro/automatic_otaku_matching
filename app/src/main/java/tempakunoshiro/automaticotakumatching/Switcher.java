@@ -108,10 +108,13 @@ public class Switcher extends IntentService {
                     dataIntent.putExtra("SCREAM", (Parcelable) scream);
                 }
                 sendBroadcast(dataIntent);
+
+                MyData data = new MyData(user, scream);
+                SendMessageIntentService.startSendAction(this, data.toBase64Data());
             }
             // 他の人のデータが来た→各アクティビティに送信＆マッチング
             else {
-                // ユーザーデータ送信
+                // ユーザーIDデータ送信
                 if(user != null) {
                     Intent userIntent = new Intent(ACTION_USER_RECEIVED);
                     List<MyUser> users = new ArrayList<>();
@@ -124,7 +127,7 @@ public class Switcher extends IntentService {
                     sendBroadcast(userIntent);
                 }
 
-                // スクリームデータ送信
+                // スクリームIDデータ送信
                 if(scream != null) {
                     Intent screamIntent = new Intent(ACTION_SCREAM_RECEIVED);
                     List<MyScream> screams = new ArrayList<>();
