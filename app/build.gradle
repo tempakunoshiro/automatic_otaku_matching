@@ -27,5 +27,6 @@ dependencies {
     compile group: 'com.j256.ormlite', name: 'ormlite-android', version: '5.0'
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
+    compile "com.android.support:support-v4:24.2.+"
     compile 'com.github.javafaker:javafaker:0.10'
 }
