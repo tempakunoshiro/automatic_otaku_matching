@@ -3,14 +3,13 @@ package tempakunoshiro.automaticotakumatching;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -22,7 +21,6 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,7 +29,6 @@ import java.util.List;
 public class ProfileListActivity extends OtakuActivity {
 
     private LinearLayout profileList;
-    private SwitcherReceiver receiver;
     private SimpleDateFormat dateFormat;
     private HashMap<Long, LinearLayout> liveRecords;
     private static final int MAX_PROFILES = 30;
@@ -111,24 +108,52 @@ public class ProfileListActivity extends OtakuActivity {
 
         LayoutInflater inflater = LayoutInflater.from(this);
 
+        Comparator comparator = new Comparator<MyUser> () {
+            @Override
+            public int compare(MyUser prf1, MyUser prf2) {
+                return (int) (prf1.getModifiedTime() - prf2.getModifiedTime());
+            }
+        };
+
         // データベース上のユーザ全てを表示
         List<MyUser> allUsers = MyUser.getAllMyUser(this);
-        Collections.sort(allUsers, new UserModifiedTimeComparator());
+        Collections.sort(allUsers, comparator);
         for(MyUser profile : allUsers.subList(0, Math.min(MAX_PROFILES - 1, allUsers.size()))) {
             addRecord(profile, inflater);
         }
 
         // 新規に受信したユーザを追加
-        receiver = new SwitcherReceiver(inflater);
-        IntentFilter iFilter = new IntentFilter();
-        iFilter.addAction(Switcher.ACTION_USER_RECEIVED);
-        registerReceiver(receiver, iFilter);
-    }
+        SwipeRefreshLayout swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener () {
+            protected long lastRefreshedTime;
+            protected Comparator comparator;
+            protected LayoutInflater inflater;
+            protected SwipeRefreshLayout swipeLayout;
 
-    @Override
-    protected void onDestroy() {
-        unregisterReceiver(receiver);
-        super.onDestroy();
+            @Override
+            public void onRefresh() {
+                List<MyUser> users = MyUser.getAllMyUserWithinTime(ProfileListActivity.this, lastRefreshedTime + 1);
+                Collections.sort(users, comparator);
+                for (MyUser user : users) {
+                    addRecord(user, inflater);
+                }
+                if (0 < users.size()) {
+                    lastRefreshedTime = users.get(users.size() - 1).getModifiedTime();
+                }
+                swipeLayout.setRefreshing(false);
+            }
+
+            public SwipeRefreshLayout.OnRefreshListener getInstance(long lastRefreshedTime,
+                                                                    Comparator comparator,
+                                                                    LayoutInflater inflater,
+                                                                    SwipeRefreshLayout swipeLayout) {
+                this.lastRefreshedTime = lastRefreshedTime;
+                this.comparator = comparator;
+                this.inflater = inflater;
+                this.swipeLayout = swipeLayout;
+                return this;
+            }
+        }.getInstance(allUsers.get(allUsers.size() - 1).getModifiedTime(), comparator, inflater, swipeLayout));
     }
 
     public void onScreamButtonTapped(View view) {
@@ -159,38 +184,6 @@ public class ProfileListActivity extends OtakuActivity {
                 }
             });
             return builder.create();
-        }
-    }
-
-    public class SwitcherReceiver extends BroadcastReceiver {
-        private LayoutInflater inflater;
-        private UserModifiedTimeComparator comparator;
-
-        public SwitcherReceiver(LayoutInflater inflater) {
-            super();
-            this.inflater = inflater;
-            this.comparator = new UserModifiedTimeComparator();
-        }
-        @Override
-        public void onReceive(Context context, Intent intent){
-            String action = intent.getAction();
-            if(action.equals(Switcher.ACTION_USER_RECEIVED)) {
-                ArrayList<MyUser> userList = new ArrayList<>();
-                for(long userId : intent.getLongArrayExtra("USER")) {
-                    userList.add(MyUser.getMyUserById(ProfileListActivity.this, userId));
-                }
-                Collections.sort(userList, comparator);
-                for(MyUser profile : userList) {
-                    addRecord(profile, inflater);
-                }
-            }
-        }
-    }
-
-    class UserModifiedTimeComparator implements Comparator<MyUser> {
-        @Override
-        public int compare(MyUser prf1, MyUser prf2) {
-            return (int) (prf1.getModifiedTime() - prf2.getModifiedTime());
         }
     }
 }
