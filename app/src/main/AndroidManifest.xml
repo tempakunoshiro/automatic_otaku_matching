@@ -30,6 +30,8 @@
         </activity>
         <activity android:name=".ProfileListActivity"
             android:uiOptions="splitActionBarWhenNarrow" />
+        <activity android:name=".ScreamListActivity"
+            android:uiOptions="splitActionBarWhenNarrow" />
         <activity android:name=".ProfileActivity"
             android:uiOptions="splitActionBarWhenNarrow" />
         <activity android:name=".AboutMeActivity"
