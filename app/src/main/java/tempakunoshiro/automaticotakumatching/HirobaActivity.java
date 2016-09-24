@@ -21,6 +21,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -145,7 +148,7 @@ public class HirobaActivity extends OtakuActivity {
     private void showScream(MyScream scream){
         for (int i = 0; i < getOtakuIconCount(); i++) {
             RelativeLayout iconLayout = getOtakuIconAt(i);
-            if(iconUserMap.get(iconLayout.getId() ) == null) continue;
+            if(iconUserMap.get(iconLayout.getId()) == null) continue;
             if(scream.getUserId() == iconUserMap.get(iconLayout.getId())) {
                 TextView text = (TextView)findViewById(screamTextId.get(i));
 
@@ -177,7 +180,12 @@ public class HirobaActivity extends OtakuActivity {
             RelativeLayout iconLayout = (RelativeLayout)findViewById(R.id.myIcon);
             ImageView icon = (ImageView) iconLayout.getChildAt(0);
             TextView text = (TextView) iconLayout.getChildAt(1);
-            icon.setImageBitmap(user.getIcon());
+            if(MyIcon.OTAKU_URI.equals(user.getIconUri())){
+                Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.otaku_icon).into(icon);
+            }else{
+                File iconFile = new File(user.getIconUri().toString());
+                Picasso.with(this).load(iconFile).placeholder(R.drawable.otaku_icon).into(icon);
+            }
             text.setText(user.getName());
             icon.setOnClickListener(cl);
             text.setOnClickListener(cl);
@@ -189,7 +197,12 @@ public class HirobaActivity extends OtakuActivity {
                 if (iconUserMap.containsKey(iconLayout.getId())) continue;
                 ImageView icon = (ImageView) iconLayout.getChildAt(0);
                 TextView text = (TextView) iconLayout.getChildAt(1);
-                icon.setImageBitmap(user.getIcon());
+                if(MyIcon.OTAKU_URI.equals(user.getIconUri())){
+                    Picasso.with(this).load(MyIcon.OTAKU_URI).placeholder(R.drawable.otaku_icon).into(icon);
+                }else{
+                    File iconFile = new File(user.getIconUri().toString());
+                    Picasso.with(this).load(iconFile).placeholder(R.drawable.otaku_icon).into(icon);
+                }
                 text.setText(user.getName());
                 icon.setOnClickListener(cl);
                 text.setOnClickListener(cl);

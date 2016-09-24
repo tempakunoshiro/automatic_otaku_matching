@@ -25,6 +25,7 @@ dependencies {
     testCompile group: 'com.github.javafaker', name: 'javafaker', version: '0.10'
     compile group: 'com.j256.ormlite', name: 'ormlite-core', version: '5.0'
     compile group: 'com.j256.ormlite', name: 'ormlite-android', version: '5.0'
+    compile group: 'com.squareup.picasso', name: 'picasso', version: '2.5.2'
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
     compile 'com.github.javafaker:javafaker:0.10'
