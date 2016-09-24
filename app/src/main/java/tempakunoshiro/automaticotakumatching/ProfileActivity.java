@@ -22,10 +22,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.R.attr.data;
 
 public class ProfileActivity extends OtakuActivity {
     private MyUser profile;
@@ -42,9 +45,21 @@ public class ProfileActivity extends OtakuActivity {
 
     // アクセサ
     private void setIcon(Bitmap bitmap) {
-        Bitmap resizedBitmap = resizeBitmap(bitmap);
-        iconBitmap = resizedBitmap;
-        if(!MyApplication.getOtakuIcon().equals(bitmap) && !MyApplication.getEmootakuIcon().equals(bitmap)){
+        if(bitmap == null){
+            iconBitmap = MyApplication.getOtakuIcon();
+            File iconFile = new File(getFilesDir().toURI().resolve(String.valueOf(profile.getId()) + ".png"));
+            if (iconFile.exists()) {
+                iconFile.delete();
+            }
+        } else if(MyApplication.getOtakuIcon().equals(bitmap) || MyApplication.getEmootakuIcon().equals(bitmap)) {
+            iconBitmap = bitmap;
+            File iconFile = new File(getFilesDir().toURI().resolve(String.valueOf(profile.getId()) + ".png"));
+            if (iconFile.exists()) {
+                iconFile.delete();
+            }
+        }else{
+            Bitmap resizedBitmap = resizeBitmap(bitmap);
+            iconBitmap = resizedBitmap;
             profile.saveIconLocalStorage(this, iconBitmap);
         }
         iconImage.setImageBitmap(iconBitmap);
