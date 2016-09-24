@@ -3,14 +3,12 @@ package tempakunoshiro.automaticotakumatching;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -22,15 +20,15 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static java.lang.System.currentTimeMillis;
+
 public class ScreamListActivity extends OtakuActivity {
 
-    private LinearLayout profileList;
-    private SwitcherReceiver receiver;
+    private LinearLayout screamList;
     private SimpleDateFormat dateFormat;
     private static final int MAX_SCREAMS = 100;
 
@@ -59,42 +57,72 @@ public class ScreamListActivity extends OtakuActivity {
 
         // 許容レコード数を超えていれば
         // 最も古いレコードを削除する．
-        if (MAX_SCREAMS < profileList.getChildCount()) {
-            profileList.removeViewAt(MAX_SCREAMS);
+        if (MAX_SCREAMS < screamList.getChildCount()) {
+            screamList.removeViewAt(MAX_SCREAMS);
         }
 
-        profileList.addView(record, 0);
+        screamList.addView(record, 0);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile_list);
+        setContentView(R.layout.activity_scream_list);
 
         dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-        profileList = (LinearLayout) findViewById(R.id.profileList);
+        screamList = (LinearLayout) findViewById(R.id.screamList);
 
         LayoutInflater inflater = LayoutInflater.from(this);
 
+        Comparator comparator = new Comparator<MyScream> () {
+            @Override
+            public int compare(MyScream scr1, MyScream scr2) {
+                return (int) (scr1.getTime() - scr2.getTime());
+            }
+        };
+
         // データベース上のscreamのうち新しいものからMAX_SCREAMS件を表示
         List<MyScream> allScreams = MyScream.getAllMyScream(this);
-        Collections.sort(allScreams, new ScreamPostedTimeComparator());
+        Collections.sort(allScreams, comparator);
         for(MyScream scream : allScreams.subList(0, Math.min(MAX_SCREAMS - 1, allScreams.size()))) {
             addRecord(scream, inflater);
         }
 
         // 新規に受信したscreamを追加
-        receiver = new SwitcherReceiver(inflater);
-        IntentFilter iFilter = new IntentFilter();
-        iFilter.addAction(Switcher.ACTION_SCREAM_RECEIVED);
-        registerReceiver(receiver, iFilter);
-    }
+        SwipeRefreshLayout swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener () {
+            protected long lastRefreshedTime;
+            protected Comparator comparator;
+            protected LayoutInflater inflater;
+            protected SwipeRefreshLayout swipeLayout;
 
-    @Override
-    protected void onDestroy() {
-        unregisterReceiver(receiver);
-        super.onDestroy();
+            @Override
+            public void onRefresh() {
+                long currentTime = currentTimeMillis();
+                // MyScream.getAllMyScreamWithinTimeメソッドに
+                // 時間の終点が指定できないと，
+                // Screamの取り残し or 重複が発生する恐れがある
+                List<MyScream> screams = MyScream.getAllMyScreamWithinTime(ScreamListActivity.this, lastRefreshedTime + 1);
+                Collections.sort(screams, comparator);
+                for (MyScream scream : screams) {
+                    addRecord(scream, inflater);
+                }
+                lastRefreshedTime = currentTime;
+                swipeLayout.setRefreshing(false);
+            }
+
+            public SwipeRefreshLayout.OnRefreshListener getInstance(long lastRefreshedTime,
+                                                                    Comparator comparator,
+                                                                    LayoutInflater inflater,
+                                                                    SwipeRefreshLayout swipeLayout) {
+                this.lastRefreshedTime = lastRefreshedTime;
+                this.comparator = comparator;
+                this.inflater = inflater;
+                this.swipeLayout = swipeLayout;
+                return this;
+            }
+        }.getInstance(allScreams.get(allScreams.size() - 1).getTime(), comparator, inflater, swipeLayout));
     }
 
 
@@ -122,42 +150,10 @@ public class ScreamListActivity extends OtakuActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     long id = pref.getLong("USER_ID", 0);
-                    Switcher.sendData(getActivity(), new MyScream(id, editText.getText().toString(), System.currentTimeMillis()));
+                    Switcher.sendData(getActivity(), new MyScream(id, editText.getText().toString(), currentTimeMillis()));
                 }
             });
             return builder.create();
-        }
-    }
-
-    public class SwitcherReceiver extends BroadcastReceiver {
-        private LayoutInflater inflater;
-        private ScreamPostedTimeComparator comparator;
-
-        public SwitcherReceiver(LayoutInflater inflater) {
-            super();
-            this.inflater = inflater;
-            this.comparator = new ScreamPostedTimeComparator();
-        }
-        @Override
-        public void onReceive(Context context, Intent intent){
-            String action = intent.getAction();
-            if(action.equals(Switcher.ACTION_SCREAM_RECEIVED)) {
-                ArrayList<MyScream> screamList = new ArrayList<>();
-                for(long screamId : intent.getLongArrayExtra("SCREAM")) {
-                    screamList.add(MyScream.getMyScreamById(ScreamListActivity.this, screamId));
-                }
-                Collections.sort(screamList, comparator);
-                for(MyScream scream : screamList) {
-                    addRecord(scream, inflater);
-                }
-            }
-        }
-    }
-
-    class ScreamPostedTimeComparator implements Comparator<MyScream> {
-        @Override
-        public int compare(MyScream scr1, MyScream scr2) {
-            return (int) (scr1.getTime() - scr2.getTime());
         }
     }
 }
