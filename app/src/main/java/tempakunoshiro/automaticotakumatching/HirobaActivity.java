@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.daasuu.bl.BubbleLayout;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -110,19 +111,19 @@ public class HirobaActivity extends OtakuActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        screamTextId.add(R.id.comment0);
-        screamTextId.add(R.id.comment1);
-        screamTextId.add(R.id.comment2);
-        screamTextId.add(R.id.comment3);
-        screamTextId.add(R.id.comment4);
-        screamTextId.add(R.id.comment5);
-        screamTextId.add(R.id.comment6);
-        screamTextId.add(R.id.comment7);
-        screamTextId.add(R.id.comment8);
-        screamTextId.add(R.id.comment9);
-        screamTextId.add(R.id.comment10);
-        screamTextId.add(R.id.comment11);
-        screamTextId.add(R.id.comment12);
+        screamTextId.add(R.id.bubble0);
+        screamTextId.add(R.id.bubble1);
+        screamTextId.add(R.id.bubble2);
+        screamTextId.add(R.id.bubble3);
+        screamTextId.add(R.id.bubble4);
+        screamTextId.add(R.id.bubble5);
+        screamTextId.add(R.id.bubble6);
+        screamTextId.add(R.id.bubble7);
+        screamTextId.add(R.id.bubble8);
+        screamTextId.add(R.id.bubble9);
+        screamTextId.add(R.id.bubble10);
+        screamTextId.add(R.id.bubble11);
+        screamTextId.add(R.id.bubble12);
 
         //RandomDataSender.sendRandomData(this, 5000);
 
@@ -150,14 +151,15 @@ public class HirobaActivity extends OtakuActivity {
             RelativeLayout iconLayout = getOtakuIconAt(i);
             if(iconUserMap.get(iconLayout.getId()) == null) continue;
             if(scream.getUserId() == iconUserMap.get(iconLayout.getId())) {
-                TextView text = (TextView)findViewById(screamTextId.get(i));
+                BubbleLayout bubble = (BubbleLayout)findViewById(screamTextId.get(i));
+                TextView text = (TextView) bubble.getChildAt(0);
 
                 if(scream.getTime() + dispTime > System.currentTimeMillis()) {
                     handler.postDelayed(sendTimerReceived, dispTime);
                     text.setText(scream.getText());
-                    text.setVisibility(View.VISIBLE);
+                    bubble.setVisibility(View.VISIBLE);
                 }else{
-                    text.setVisibility(View.INVISIBLE);
+                    bubble.setVisibility(View.INVISIBLE);
                 }
             }
         }
@@ -223,7 +225,7 @@ public class HirobaActivity extends OtakuActivity {
                         MyUser.getMyUserById(this, iconUserMap.get(iconLayout.getId())).getModifiedTime() + dispTime < System.currentTimeMillis() )) {
                 ImageView icon = (ImageView) iconLayout.getChildAt(0);
                 TextView text = (TextView) iconLayout.getChildAt(1);
-                TextView scm = (TextView)findViewById(screamTextId.get(i));
+                BubbleLayout scm = (BubbleLayout)findViewById(screamTextId.get(i));
                 scm.setVisibility(View.INVISIBLE);
                 iconLayout.setVisibility(View.INVISIBLE);
                 iconUserMap.remove(iconLayout.getId());

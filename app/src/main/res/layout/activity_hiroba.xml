@@ -45,22 +45,6 @@
             layout="@layout/hiroba_otaku_icon"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:id="@+id/include3"
-            android:layout_above="@+id/include5"
-            android:layout_alignStart="@+id/include8" />
-
-        <include
-            layout="@layout/hiroba_otaku_icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:id="@+id/include5"
-            android:layout_above="@+id/myIcon"
-            android:layout_toStartOf="@+id/myIcon" />
-
-        <include
-            layout="@layout/hiroba_otaku_icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
             android:id="@+id/include2"
             android:layout_centerVertical="true"
             android:layout_toStartOf="@+id/include11" />
@@ -69,34 +53,9 @@
             layout="@layout/hiroba_otaku_icon"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_below="@+id/myIcon"
-            android:layout_toStartOf="@+id/myIcon"
-            android:id="@+id/include11" />
-
-        <include
-            layout="@layout/hiroba_otaku_icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:id="@+id/include8"
-            android:layout_below="@+id/include13"
-            android:layout_centerHorizontal="true" />
-
-        <include
-            layout="@layout/hiroba_otaku_icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center|left"
-            android:layout_below="@+id/myIcon"
-            android:layout_toEndOf="@+id/myIcon"
-            android:id="@+id/include13" />
-
-        <include
-            layout="@layout/hiroba_otaku_icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:id="@+id/include7"
-            android:layout_alignTop="@+id/include2"
-            android:layout_toEndOf="@+id/include4" />
+            android:id="@+id/include3"
+            android:layout_above="@+id/include5"
+            android:layout_alignStart="@+id/include8" />
 
         <include
             layout="@layout/hiroba_otaku_icon"
@@ -110,9 +69,33 @@
             layout="@layout/hiroba_otaku_icon"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:id="@+id/include5"
+            android:layout_above="@+id/myIcon"
+            android:layout_toStartOf="@+id/myIcon" />
+
+        <include
+            layout="@layout/hiroba_otaku_icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:id="@+id/include6"
             android:layout_alignTop="@+id/include3"
             android:layout_alignStart="@+id/include7" />
+
+        <include
+            layout="@layout/hiroba_otaku_icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/include7"
+            android:layout_alignTop="@+id/include2"
+            android:layout_toEndOf="@+id/include4" />
+
+        <include
+            layout="@layout/hiroba_otaku_icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/include8"
+            android:layout_below="@+id/include13"
+            android:layout_centerHorizontal="true" />
 
         <include
             layout="@layout/hiroba_otaku_icon"
@@ -134,168 +117,356 @@
             layout="@layout/hiroba_otaku_icon"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_below="@+id/myIcon"
+            android:layout_toStartOf="@+id/myIcon"
+            android:id="@+id/include11" />
+
+        <include
+            layout="@layout/hiroba_otaku_icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:id="@+id/include12"
             android:layout_alignBottom="@+id/include8"
             android:layout_toEndOf="@+id/include13"
             />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="20dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="12dp"
-            android:id="@+id/comment0"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/myIcon"
-            android:layout_alignStart="@+id/myIcon"
-            android:visibility="invisible"/>
+        <include
+            layout="@layout/hiroba_otaku_icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center|left"
+            android:layout_below="@+id/myIcon"
+            android:layout_toEndOf="@+id/myIcon"
+            android:id="@+id/include13" />
 
-        <TextView
+        <com.daasuu.bl.BubbleLayout
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="10dp"
-            android:id="@+id/comment1"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/include3"
-            android:layout_alignStart="@+id/include3"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/myIcon"
+            android:layout_alignLeft="@+id/myIcon"
+            android:visibility="invisible"
+            android:id="@+id/bubble0">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment0"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
+        <com.daasuu.bl.BubbleLayout
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="10dp"
-            android:id="@+id/comment2"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/include5"
-            android:layout_alignStart="@+id/include5"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/include2"
+            android:layout_alignLeft="@+id/include2"
+            android:visibility="invisible"
+            android:id="@+id/bubble1">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment1"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
+        <com.daasuu.bl.BubbleLayout
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="10dp"
-            android:id="@+id/comment3"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/include2"
-            android:layout_alignStart="@+id/include2"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/include3"
+            android:layout_alignLeft="@+id/include3"
+            android:visibility="invisible"
+            android:id="@+id/bubble2">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment2"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
+        <com.daasuu.bl.BubbleLayout
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="10dp"
-            android:id="@+id/comment4"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/include11"
-            android:layout_alignStart="@+id/include11"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/include4"
+            android:layout_alignLeft="@+id/include4"
+            android:visibility="invisible"
+            android:id="@+id/bubble3">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment3"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
+        <com.daasuu.bl.BubbleLayout
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="10dp"
-            android:id="@+id/comment5"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/include8"
-            android:layout_alignStart="@+id/include8"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/include5"
+            android:layout_alignLeft="@+id/include5"
+            android:visibility="invisible"
+            android:id="@+id/bubble4">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment4"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
+        <com.daasuu.bl.BubbleLayout
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="10dp"
-            android:id="@+id/comment6"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/include13"
-            android:layout_alignStart="@+id/include13"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/include6"
+            android:layout_alignLeft="@+id/include6"
+            android:visibility="invisible"
+            android:id="@+id/bubble5">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment5"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
+        <com.daasuu.bl.BubbleLayout
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="10dp"
-            android:id="@+id/comment7"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/include7"
-            android:layout_alignStart="@+id/include7"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/include7"
+            android:layout_alignLeft="@+id/include7"
+            android:visibility="invisible"
+            android:id="@+id/bubble6">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment6"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
+        <com.daasuu.bl.BubbleLayout
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="10dp"
-            android:id="@+id/comment8"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/include4"
-            android:layout_alignStart="@+id/include4"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/include8"
+            android:layout_alignLeft="@+id/include8"
+            android:visibility="invisible"
+            android:id="@+id/bubble7">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment7"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
+        <com.daasuu.bl.BubbleLayout
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="10dp"
-            android:id="@+id/comment9"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/include6"
-            android:layout_alignStart="@+id/include6"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/include9"
+            android:layout_alignLeft="@+id/include9"
+            android:visibility="invisible"
+            android:id="@+id/bubble8">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment8"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
+        <com.daasuu.bl.BubbleLayout
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="10dp"
-            android:id="@+id/comment10"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/include9"
-            android:layout_alignStart="@+id/include9"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/include10"
+            android:layout_alignLeft="@+id/include10"
+            android:visibility="invisible"
+            android:id="@+id/bubble9">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment9"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
+        <com.daasuu.bl.BubbleLayout
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="10dp"
-            android:id="@+id/comment11"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/include10"
-            android:layout_alignStart="@+id/include10"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/include11"
+            android:layout_alignLeft="@+id/include11"
+            android:visibility="invisible"
+            android:id="@+id/bubble10">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment10"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
+        <com.daasuu.bl.BubbleLayout
             android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:textSize="10dp"
-            android:id="@+id/comment12"
-            android:background="@android:drawable/editbox_dropdown_light_frame"
-            android:layout_alignTop="@+id/include12"
-            android:layout_alignStart="@+id/include12"
-            android:visibility="invisible"/>
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/include12"
+            android:layout_alignLeft="@+id/include12"
+            android:visibility="invisible"
+            android:id="@+id/bubble11">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment11"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
+        <com.daasuu.bl.BubbleLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:bl_arrowDirection="bottom"
+            app:bl_arrowHeight="8dp"
+            app:bl_arrowPosition="20dp"
+            app:bl_arrowWidth="8dp"
+            app:bl_cornersRadius="6dp"
+            app:bl_strokeWidth="1dp"
+            android:layout_above="@+id/include13"
+            android:layout_alignLeft="@+id/include13"
+            android:visibility="invisible"
+            android:id="@+id/bubble12">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="技科大はいいぞ"
+                android:textSize="12dp"
+                android:id="@+id/comment12"
+                android:visibility="visible"
+                android:inputType="textMultiLine"
+                android:layout_height="wrap_content" />
+        </com.daasuu.bl.BubbleLayout>
 
     </RelativeLayout>
+
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
