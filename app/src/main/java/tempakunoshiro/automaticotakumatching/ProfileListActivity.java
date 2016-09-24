@@ -15,16 +15,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 public class ProfileListActivity extends OtakuActivity {
 
     private LinearLayout profileList;
     private SwitcherReceiver receiver;
-
-    private void delRecord(long id) {
-        // TODO: implementation
-    }
+    private SimpleDateFormat dateFormat;
+    private HashMap<Long, LinearLayout> liveRecords;
+    private static final int MAX_PROFILES = 30;
 
     private void addRecord(MyUser profile, LayoutInflater inflater) {
         LinearLayout record = (LinearLayout) inflater.inflate(R.layout.profile_list_record, null);
@@ -32,21 +32,22 @@ public class ProfileListActivity extends OtakuActivity {
         // XXX: LinearLayout だと getChildAt で要素取得するしかないっぽい
         ImageView iconImage = (ImageView) record.getChildAt(0);
         LinearLayout infoLinear = (LinearLayout) record.getChildAt(1);
-        TextView lastReceivedTimeText =
+        TextView modifiedTimeText =
                 (TextView) ((LinearLayout) infoLinear.getChildAt(0)).getChildAt(2);
         TextView nameText = (TextView) infoLinear.getChildAt(1);
         TextView tagsText = (TextView) infoLinear.getChildAt(2);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-        lastReceivedTimeText.setText(sdf.format(profile.getModifiedTime()));
+        // レコードにユーザ情報を格納
+        iconImage.setImageBitmap(profile.getIcon());
+        modifiedTimeText.setText(dateFormat.format(profile.getModifiedTime()));
         nameText.setText(profile.getName());
         StringBuilder tagStrBldr = new StringBuilder();
         for(String tag : profile.getTagList()) {
             tagStrBldr.append(" / #" + tag);
         }
-
         tagsText.setText(tagStrBldr.toString().replaceFirst(" / ", ""));
 
+        // クリックされたら ProfileActivity を起動
         record.setOnClickListener(new View.OnClickListener() {
             private long id;
 
@@ -64,7 +65,22 @@ public class ProfileListActivity extends OtakuActivity {
                 startActivity(intent);
             }
         }.getInstance(profile.getId()));
-        delRecord(profile.getId());
+
+        // すでに表示されているプロフィールであれば
+        // 既存の record を削除する．
+        if (liveRecords.containsKey(profile.getId())) {
+            profileList.removeView(liveRecords.get(profile.getId()));
+            liveRecords.put(profile.getId(), record);
+        }
+
+        // 許容レコード数を超えていれば
+        // 最も古いレコードを削除する．
+        if (MAX_PROFILES < profileList.getChildCount()) {
+            LinearLayout remRecord = (LinearLayout) profileList.getChildAt(MAX_PROFILES);
+            liveRecords.remove(remRecord.getChildAt(1));
+            profileList.removeViewAt(MAX_PROFILES);
+        }
+
         profileList.addView(record, 0);
     }
 
@@ -73,19 +89,17 @@ public class ProfileListActivity extends OtakuActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_list);
 
-        profileList = (LinearLayout) findViewById(R.id.profileList);
+        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        liveRecords = new HashMap<>();
 
+        profileList = (LinearLayout) findViewById(R.id.profileList);
 
         LayoutInflater inflater = LayoutInflater.from(this);
 
         // データベース上のユーザ全てを表示
         List<MyUser> allUsers = MyUser.getAllMyUser(this);
-        Collections.sort(allUsers, new Comparator<MyUser>() {
-            public int compare(MyUser prf1, MyUser prf2) {
-                return (int) (prf2.getModifiedTime() - prf1.getModifiedTime());
-            }
-        });
-        for(MyUser profile : allUsers) {
+        Collections.sort(allUsers, new UserModifiedTimeComparator());
+        for(MyUser profile : allUsers.subList(0, Math.min(MAX_PROFILES - 1, allUsers.size() - 1))) {
             addRecord(profile, inflater);
         }
 
@@ -104,10 +118,12 @@ public class ProfileListActivity extends OtakuActivity {
 
     public class SwitcherReceiver extends BroadcastReceiver {
         private LayoutInflater inflater;
+        private UserModifiedTimeComparator comparator;
 
         public SwitcherReceiver(LayoutInflater inflater) {
             super();
             this.inflater = inflater;
+            this.comparator = new UserModifiedTimeComparator();
         }
         @Override
         public void onReceive(Context context, Intent intent){
@@ -117,15 +133,18 @@ public class ProfileListActivity extends OtakuActivity {
                 for(long userId : intent.getLongArrayExtra("USER")) {
                     userList.add(MyUser.getMyUserById(ProfileListActivity.this, userId));
                 }
-                Collections.sort(userList, new Comparator<MyUser>() {
-                    public int compare(MyUser prf1, MyUser prf2) {
-                        return (int) (prf2.getModifiedTime() - prf1.getModifiedTime());
-                    }
-                });
+                Collections.sort(userList, comparator);
                 for(MyUser profile : userList) {
                     addRecord(profile, inflater);
                 }
             }
+        }
+    }
+
+    class UserModifiedTimeComparator implements Comparator<MyUser> {
+        @Override
+        public int compare(MyUser prf1, MyUser prf2) {
+            return (int) (prf1.getModifiedTime() - prf2.getModifiedTime());
         }
     }
 }
