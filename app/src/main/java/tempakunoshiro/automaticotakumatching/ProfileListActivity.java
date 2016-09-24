@@ -1,12 +1,19 @@
 package tempakunoshiro.automaticotakumatching;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -114,6 +121,37 @@ public class ProfileListActivity extends OtakuActivity {
     protected void onDestroy() {
         unregisterReceiver(receiver);
         super.onDestroy();
+    }
+
+    public void onScreamButtonTapped(View view) {
+        ScreamSendDialog dialog = new ScreamSendDialog();
+        dialog.show(getFragmentManager(), "dialog");
+    }
+
+    public static class ScreamSendDialog extends DialogFragment {
+        private EditText editText;
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LinearLayout content = (LinearLayout) inflater.inflate(R.layout.dialog_edit_text, null);
+            editText = (EditText) content.findViewById(R.id.editText);
+            builder.setView(content);
+
+            builder.setTitle(R.string.send_scream_text);
+
+            builder.setPositiveButton(R.string.send_text, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    long id = pref.getLong("USER_ID", 0);
+                    Switcher.sendData(getActivity(), new MyScream(id, editText.getText().toString(), System.currentTimeMillis()));
+                }
+            });
+            return builder.create();
+        }
     }
 
     public class SwitcherReceiver extends BroadcastReceiver {
