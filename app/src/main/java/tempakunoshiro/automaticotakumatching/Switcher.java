@@ -100,10 +100,12 @@ public class Switcher extends IntentService {
                 }
 
                 Intent dataIntent = new Intent(ACTION_DATA_RECEIVED);
-                if(user != null){
-                    user.setTagList(MyTag.getTagListById(this, id));
-                    dataIntent.putExtra("USER", (Parcelable) user);
+                if(user == null){
+                    user = MyUser.getMyUserById(this, id);
                 }
+                user.setTagList(MyTag.getTagListById(this, id));
+                dataIntent.putExtra("USER", (Parcelable) user);
+
                 if(scream != null) {
                     dataIntent.putExtra("SCREAM", (Parcelable) scream);
                 }
