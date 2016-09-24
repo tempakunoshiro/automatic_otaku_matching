@@ -89,23 +89,31 @@ public class ScreamListActivity extends OtakuActivity {
             addRecord(scream, inflater);
         }
 
+        // 現在所持している最新スクリームの時間を取得
+        long latestScreamTime;
+        if (0 < allScreams.size()) {
+            latestScreamTime = allScreams.get(allScreams.size() - 1).getTime();
+        } else {
+            latestScreamTime = currentTimeMillis();
+        }
+
         // 新規に受信したscreamを追加
         SwipeRefreshLayout swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener () {
-            protected long lastRefreshedTime;
+            protected long latestScreamTime;
             protected Comparator comparator;
             protected LayoutInflater inflater;
             protected SwipeRefreshLayout swipeLayout;
 
             @Override
             public void onRefresh() {
-                List<MyScream> screams = MyScream.getAllMyScreamWithinTime(ScreamListActivity.this, lastRefreshedTime + 1);
+                List<MyScream> screams = MyScream.getAllMyScreamWithinTime(ScreamListActivity.this, latestScreamTime + 1);
                 Collections.sort(screams, comparator);
                 for (MyScream scream : screams) {
                     addRecord(scream, inflater);
                 }
                 if (0 < screams.size()) {
-                    lastRefreshedTime = screams.get(screams.size() - 1).getTime();
+                    latestScreamTime = screams.get(screams.size() - 1).getTime();
                 }
                 swipeLayout.setRefreshing(false);
             }
@@ -114,13 +122,13 @@ public class ScreamListActivity extends OtakuActivity {
                                                                     Comparator comparator,
                                                                     LayoutInflater inflater,
                                                                     SwipeRefreshLayout swipeLayout) {
-                this.lastRefreshedTime = lastRefreshedTime;
+                this.latestScreamTime = lastRefreshedTime;
                 this.comparator = comparator;
                 this.inflater = inflater;
                 this.swipeLayout = swipeLayout;
                 return this;
             }
-        }.getInstance(allScreams.get(allScreams.size() - 1).getTime(), comparator, inflater, swipeLayout));
+        }.getInstance(latestScreamTime, comparator, inflater, swipeLayout));
     }
 
 

@@ -26,6 +26,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import static java.lang.System.currentTimeMillis;
+
 public class ProfileListActivity extends OtakuActivity {
 
     private LinearLayout profileList;
@@ -122,23 +124,31 @@ public class ProfileListActivity extends OtakuActivity {
             addRecord(profile, inflater);
         }
 
+        // 現在所持している最新プロフィールの時間を取得
+        long latestProfileTime;
+        if (0 < allUsers.size()) {
+            latestProfileTime = allUsers.get(allUsers.size() - 1).getModifiedTime();
+        } else {
+            latestProfileTime = currentTimeMillis();
+        }
+
         // 新規に受信したユーザを追加
         SwipeRefreshLayout swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeLayout);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener () {
-            protected long lastRefreshedTime;
+            protected long latestProfileTime;
             protected Comparator comparator;
             protected LayoutInflater inflater;
             protected SwipeRefreshLayout swipeLayout;
 
             @Override
             public void onRefresh() {
-                List<MyUser> users = MyUser.getAllMyUserWithinTime(ProfileListActivity.this, lastRefreshedTime + 1);
+                List<MyUser> users = MyUser.getAllMyUserWithinTime(ProfileListActivity.this, latestProfileTime + 1);
                 Collections.sort(users, comparator);
                 for (MyUser user : users) {
                     addRecord(user, inflater);
                 }
                 if (0 < users.size()) {
-                    lastRefreshedTime = users.get(users.size() - 1).getModifiedTime();
+                    latestProfileTime = users.get(users.size() - 1).getModifiedTime();
                 }
                 swipeLayout.setRefreshing(false);
             }
@@ -147,13 +157,13 @@ public class ProfileListActivity extends OtakuActivity {
                                                                     Comparator comparator,
                                                                     LayoutInflater inflater,
                                                                     SwipeRefreshLayout swipeLayout) {
-                this.lastRefreshedTime = lastRefreshedTime;
+                this.latestProfileTime = lastRefreshedTime;
                 this.comparator = comparator;
                 this.inflater = inflater;
                 this.swipeLayout = swipeLayout;
                 return this;
             }
-        }.getInstance(allUsers.get(allUsers.size() - 1).getModifiedTime(), comparator, inflater, swipeLayout));
+        }.getInstance(latestProfileTime, comparator, inflater, swipeLayout));
     }
 
     public void onScreamButtonTapped(View view) {
