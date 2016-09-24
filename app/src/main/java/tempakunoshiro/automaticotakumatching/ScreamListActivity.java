@@ -99,7 +99,7 @@ public class ScreamListActivity extends OtakuActivity {
 
 
     public void onScreamButtonTapped(View view) {
-        HirobaActivity.ScreamSendDialog dialog = new HirobaActivity.ScreamSendDialog();
+        ScreamSendDialog dialog = new ScreamSendDialog();
         dialog.show(getFragmentManager(), "dialog");
     }
 
