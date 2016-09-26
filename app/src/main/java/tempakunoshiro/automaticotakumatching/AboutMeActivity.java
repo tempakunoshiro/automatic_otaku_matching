@@ -12,6 +12,8 @@ public class AboutMeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about_me);
 
+        setTitle(R.string.about_me_activity_name);
+
         WebView web = (WebView) findViewById(R.id.webView);
 
         web.loadUrl(ABOUT_HTML);

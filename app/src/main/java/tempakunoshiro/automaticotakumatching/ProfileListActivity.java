@@ -104,6 +104,8 @@ public class ProfileListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_list);
 
+        setTitle(R.string.profile_list_activity_name);
+
         dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         liveRecords = new HashMap<>();
 
