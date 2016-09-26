@@ -13,7 +13,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -30,7 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class HirobaActivity extends OtakuActivity {
+public class HirobaActivity extends AppCompatActivity {
 
     ArrayList userList;
     ArrayList screamList;
@@ -257,6 +260,47 @@ public class HirobaActivity extends OtakuActivity {
         super.onDestroy();
 
         if(manager != null)manager.destroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuItem goScreamListItem = menu.add(R.string.go_scream_list_text);
+        goScreamListItem.setIcon(android.R.drawable.ic_menu_agenda);
+        goScreamListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        goScreamListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(HirobaActivity.this, ScreamListActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+        MenuItem goProfileListItem = menu.add(R.string.go_profile_list_text);
+        goProfileListItem.setIcon(android.R.drawable.ic_menu_my_calendar);
+        goProfileListItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        goProfileListItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(HirobaActivity.this, ProfileListActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+        MenuItem goAboutMeItem = menu.add(R.string.go_about_me_text);
+        goAboutMeItem.setIcon(android.R.drawable.ic_menu_help);
+        goAboutMeItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        goAboutMeItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(HirobaActivity.this, AboutMeActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+        return true;
     }
 
     public static class ScreamSendDialog extends DialogFragment {

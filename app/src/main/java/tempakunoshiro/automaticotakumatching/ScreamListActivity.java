@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -26,7 +27,7 @@ import java.util.List;
 
 import static java.lang.System.currentTimeMillis;
 
-public class ScreamListActivity extends OtakuActivity {
+public class ScreamListActivity extends AppCompatActivity {
 
     private LinearLayout screamList;
     private SimpleDateFormat dateFormat;

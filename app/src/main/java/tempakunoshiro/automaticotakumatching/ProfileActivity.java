@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProfileActivity extends OtakuActivity {
+public class ProfileActivity extends AppCompatActivity {
     private MyUser profile;
     private boolean editableFlg = false;
     private ImageView iconImage;

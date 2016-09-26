@@ -1,9 +1,10 @@
 package tempakunoshiro.automaticotakumatching;
 
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebView;
 
-public class AboutMeActivity extends OtakuActivity {
+public class AboutMeActivity extends AppCompatActivity {
     private final static String ABOUT_HTML = "file:///android_asset/about.html";
 
     @Override
