@@ -59,7 +59,7 @@ public class HirobaActivity extends OtakuActivity {
         myId = pref.getLong("USER_ID", 0);
 
         hirobaLayout = (RelativeLayout)findViewById(R.id.hiroba);
-        dispTime = 10000;
+        dispTime = 100000000;
         userList = new ArrayList();
         screamList = new ArrayList();
         iconUserMap = new HashMap<Integer, Long>();
@@ -154,7 +154,7 @@ public class HirobaActivity extends OtakuActivity {
                 BubbleLayout bubble = (BubbleLayout)findViewById(screamTextId.get(i));
                 TextView text = (TextView) bubble.getChildAt(0);
 
-                if(scream.getTime() + dispTime > System.currentTimeMillis()) {
+                if(scream.getTime() + 60000 > System.currentTimeMillis()) {
                     handler.postDelayed(sendTimerReceived, dispTime);
                     text.setText(scream.getText());
                     bubble.setVisibility(View.VISIBLE);

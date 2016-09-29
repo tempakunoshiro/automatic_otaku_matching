@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AutomaticOtakuMatching.iml" filepath="$PROJECT_DIR$/AutomaticOtakuMatching.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/automatic_otaku_matching.iml" filepath="$PROJECT_DIR$/automatic_otaku_matching.iml" />
     </modules>
   </component>
 </project>

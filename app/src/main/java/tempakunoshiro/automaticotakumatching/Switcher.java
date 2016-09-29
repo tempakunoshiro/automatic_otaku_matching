@@ -52,7 +52,7 @@ public class Switcher extends IntentService {
             Dao userDao = dbHelper.getDao(MyUser.class);
             if(user != null){
                 CreateOrUpdateStatus status =  userDao.createOrUpdate(user);
-                if(status.isCreated()){
+                if(status.isCreated() || status.isUpdated()){
                     isNewUser = true;
                 }
             }
@@ -182,6 +182,7 @@ public class Switcher extends IntentService {
             if(data.getUser() == null){
                 return;
             }
+            data.getUser().setModifiedTime(System.currentTimeMillis());
             intent.putExtra("USER", (Parcelable) data.getUser());
             intent.putExtra("SCREAM", (Parcelable) data.getScream());
             if(data.getIconBytes() == null){

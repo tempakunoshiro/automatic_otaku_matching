@@ -40,7 +40,7 @@ public class RandomDataSender extends IntentService {
                     Faker faker = new Faker(Locale.JAPAN);
                     long id =(long) Math.ceil(Math.random() * Long.MAX_VALUE);
                     u = new MyUser(id, faker.name().lastName() + faker.name().firstName(), "twitter", "Comment", Arrays.asList(tags.get(0)), System.currentTimeMillis());
-                    s = new MyScream(id, "叫びだよ～", System.currentTimeMillis());
+                    s = new MyScream(id, "こんにちは", System.currentTimeMillis());
                     Bitmap image = BitmapFactory.decodeResource(getApplicationContext().getResources(), getRandomOtaku());
                     u.saveIconLocalStorage(this, image);
                     users.add(u);
