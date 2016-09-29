@@ -45,6 +45,7 @@ public class HirobaActivity extends AppCompatActivity {
     Runnable sendTimerReceived;
 
     long dispTime;
+    long screamDispTime;
     long myId;
 
     private static final String ACTION_TIMER_RECEIVED = "tempakunoshiro.automaticotakumatching.ACTION_TIMER_RECEIVED";
@@ -62,7 +63,8 @@ public class HirobaActivity extends AppCompatActivity {
         myId = pref.getLong("USER_ID", 0);
 
         hirobaLayout = (RelativeLayout)findViewById(R.id.hiroba);
-        dispTime = 100000000;
+        dispTime = 20000;
+        screamDispTime = 20000;
         userList = new ArrayList();
         screamList = new ArrayList();
         iconUserMap = new HashMap<Integer, Long>();
@@ -157,7 +159,7 @@ public class HirobaActivity extends AppCompatActivity {
                 BubbleLayout bubble = (BubbleLayout)findViewById(screamTextId.get(i));
                 TextView text = (TextView) bubble.getChildAt(0);
 
-                if(scream.getTime() + 60000 > System.currentTimeMillis()) {
+                if(scream.getTime() + screamDispTime > System.currentTimeMillis()) {
                     handler.postDelayed(sendTimerReceived, dispTime);
                     text.setText(scream.getText());
                     bubble.setVisibility(View.VISIBLE);
