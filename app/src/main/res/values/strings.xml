@@ -18,4 +18,9 @@
     <string name="go_scream_list_text">さけびリストを開く</string>
     <string name="go_profile_list_text">プロフィールリストを開く</string>
     <string name="go_about_me_text"> 本ソフトウェアについて</string>
+    <string name="hiroba_activity_name">ひろば</string>
+    <string name="profile_activity_name">プロフィール</string>
+    <string name="profile_list_activity_name">すれ違ったオタク</string>
+    <string name="scream_list_activity_name">叫びタイムライン</string>
+    <string name="about_me_activity_name">本ソフトウェアについて</string>
 </resources>

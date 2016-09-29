@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -28,7 +29,7 @@ import java.util.List;
 
 import static java.lang.System.currentTimeMillis;
 
-public class ProfileListActivity extends OtakuActivity {
+public class ProfileListActivity extends AppCompatActivity {
 
     private LinearLayout profileList;
     private SimpleDateFormat dateFormat;
@@ -102,6 +103,8 @@ public class ProfileListActivity extends OtakuActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_list);
+
+        setTitle(R.string.profile_list_activity_name);
 
         dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         liveRecords = new HashMap<>();
